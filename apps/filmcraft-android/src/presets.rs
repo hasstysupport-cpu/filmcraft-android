@@ -144,6 +144,74 @@ const LOOKS: &[Look] = &[
     },
     Look { id: "instant", name: "Instant", fade: 25.0, temperature: 12.0, tint: 6.0, highlights: -20.0, saturation: -10.0, vignette: -0.6, ..NEUTRAL },
     Look { id: "vivid", name: "Vivid", saturation: 50.0, vibrance: 30.0, contrast: 15.0, ..NEUTRAL },
+    Look {
+        id: "bleach_bypass",
+        name: "Bleach bypass",
+        saturation: -45.0,
+        contrast: 40.0,
+        highlights: -10.0,
+        whites: 20.0,
+        blacks: -10.0,
+        grain: 6.0,
+        ..NEUTRAL
+    },
+    Look {
+        id: "midnight",
+        name: "Midnight",
+        exposure: -0.3,
+        temperature: -20.0,
+        contrast: 20.0,
+        saturation: -15.0,
+        shadow_tint: [-0.02, -0.01, 0.07],
+        vignette: -1.4,
+        ..NEUTRAL
+    },
+    Look {
+        id: "golden_hour",
+        name: "Golden hour",
+        temperature: 40.0,
+        tint: 8.0,
+        exposure: 0.15,
+        saturation: 12.0,
+        highlight_tint: [0.1, 0.06, -0.07],
+        shadow_tint: [0.03, 0.01, -0.03],
+        vignette: -0.5,
+        ..NEUTRAL
+    },
+    Look {
+        id: "blockbuster",
+        name: "Blockbuster",
+        contrast: 30.0,
+        saturation: -12.0,
+        shadow_tint: TEAL,
+        highlight_tint: ORANGE,
+        blacks: -12.0,
+        vignette: -1.0,
+        ..NEUTRAL
+    },
+    Look {
+        id: "silk",
+        name: "Silk",
+        exposure: 0.2,
+        contrast: -20.0,
+        highlights: 15.0,
+        fade: 30.0,
+        saturation: -8.0,
+        sharpen: -25.0,
+        highlight_tint: [0.04, 0.02, 0.03],
+        ..NEUTRAL
+    },
+    Look {
+        id: "crimson",
+        name: "Crimson",
+        contrast: 22.0,
+        saturation: -18.0,
+        shadow_tint: [0.07, -0.03, -0.01],
+        highlight_tint: [0.05, -0.01, 0.0],
+        vignette: -1.2,
+        grain: 5.0,
+        ..NEUTRAL
+    },
 ];
 
 /// The filter picker's list (None is the picker's own first tile).
