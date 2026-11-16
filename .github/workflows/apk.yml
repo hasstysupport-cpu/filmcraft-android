@@ -1,0 +1,57 @@
+# Builds installable APKs for VantaCut Studio and uploads them as run artifacts you can download
+# from the Actions run page. Runs on every push to this branch and on demand (Actions > APK >
+# Run workflow). The debug APK is signed with the debug key and installs directly; the release
+# APK is unsigned (a release APK for installation needs the signing secrets, see release.yml).
+name: APK
+
+on:
+  push:
+    branches: ['feature/vantacut-integration']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  apk:
+    name: APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Rust
+        run: rustup toolchain install
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: apk-android
+
+      - name: Install cargo-ndk and the Android NDK
+        run: |
+          cargo install cargo-ndk --version 4.1.2 --locked
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;29.0.14206865" >/dev/null
+
+      - name: Build debug and release APKs (arm64-v8a)
+        working-directory: apps/filmcraft-android/android
+        run: |
+          ./gradlew assembleDebug assembleRelease -Pfilmcraft.abis=arm64-v8a -Pfilmcraft.unsigned=true --no-daemon
+          VERSION="$(sed -n 's/^filmcraft\.version=//p' gradle.properties)"
+          mkdir -p "$GITHUB_WORKSPACE/dist"
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/dist/vantacut-studio-$VERSION-debug-arm64.apk"
+          cp app/build/outputs/apk/release/app-release-unsigned.apk "$GITHUB_WORKSPACE/dist/vantacut-studio-$VERSION-release-unsigned-arm64.apk"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: VantaCut-Studio-APK
+          path: dist/*
+          if-no-files-found: error
