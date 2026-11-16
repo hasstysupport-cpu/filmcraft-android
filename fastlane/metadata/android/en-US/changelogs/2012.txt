@@ -1,4 +1,5 @@
-First release on F-Droid.
-* Speed changes keep the pitch of the sound
-* Replace fits the new picture to the frame, and a refused replace leaves nothing to redo
-* Reproducible builds: the APK F-Droid builds matches the one on GitHub
+VantaCut Studio 0.0.2-beta
+* New identity: deep black studio theme, violet and red accents, new icon
+* Arabic captions: Cairo typeface bundled, right-to-left shaping and mixed Arabic/English text
+* Import caption files (SRT, WebVTT, TTML, SCC, MCC, STL) and export SRT
+* Six caption looks and six new cinematic filters
