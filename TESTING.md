@@ -5,9 +5,9 @@ source in a Linux x86_64 sandbox.
 
 ## Rust (engine + app crate)
 
-`cargo test --workspace` — **2813 passed, 0 failed** (unit tests plus doc tests across the
-Cargo workspace, including the FilmCraft engine, project format, captions parser, text engine and
-the Android app crate).
+`cargo test --workspace` — **2819 passed, 0 failed** (2811 unit/integration tests plus 8 doc
+tests across the Cargo workspace, including the FilmCraft engine, project format, captions
+parser, text engine and the Android app crate).
 
 New tests added on this branch:
 
