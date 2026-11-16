@@ -24,6 +24,7 @@ use filmcraft_engine::Session;
 use filmcraft_time::{TICKS_PER_SECOND, Tick};
 use serde_json::{Value, json};
 
+pub mod captions_io;
 pub mod edits;
 pub mod export;
 pub mod model;
@@ -38,6 +39,7 @@ use export::{ExportPlan, ExportSettings, ExportStatus};
 use model::TimelineInfo;
 use presets::PresetInfo;
 use render::Renderer;
+use captions_io::CaptionPreset;
 use speech::{CaptionLook, CaptionStatus, SpeechAudio, SpeechSettings};
 use text::{Placement, TextStyle};
 
@@ -486,6 +488,28 @@ impl MobileSession {
     /// Change the captions' look; `merge` folds a slider drag into one undo step.
     pub fn set_caption_look(&self, look: CaptionLook, merge: bool) -> Result<(), MobileError> {
         speech::set_look(&mut self.lock(), &look, merge)
+    }
+
+    /// Read a caption file (SRT, WebVTT, TTML, SCC, MCC or EBU STL) and place its cues as the
+    /// open sequence's captions, keeping their look; returns how many.
+    pub fn import_captions(&self, path: String) -> Result<u32, MobileError> {
+        captions_io::import(&mut self.lock(), &path)
+    }
+
+    /// Write the open sequence's captions to `path` as `format` (srt, vtt, ttml, dfxp, scc, mcc,
+    /// stl; an unknown name means srt).
+    pub fn export_captions(&self, path: String, format: String) -> Result<(), MobileError> {
+        captions_io::export(&mut self.lock(), &path, &format)
+    }
+
+    /// The caption looks the pickers show.
+    pub fn caption_presets(&self) -> Vec<CaptionPreset> {
+        captions_io::preset_list()
+    }
+
+    /// Give the captions one of the preset looks.
+    pub fn set_caption_preset(&self, id: String) -> Result<(), MobileError> {
+        captions_io::apply_preset(&mut self.lock(), &id)
     }
 
     /// Change a caption's words; blank words delete it.

@@ -421,7 +421,7 @@ pub(crate) fn status(s: &mut Session, job: &CaptionJob) -> CaptionStatus {
 }
 
 /// The caption look for a frame: text about 5.5 % of the short side, lines that fit its width.
-fn caption_layout(width: u32, height: u32) -> (f64, usize) {
+pub(crate) fn caption_layout(width: u32, height: u32) -> (f64, usize) {
     let (w, h) = (f64::from(width.max(1)), f64::from(height.max(1)));
     let px = 0.055 * w.min(h);
     // the style's size is for a 1080-line frame and grows with the frame's height
@@ -548,7 +548,7 @@ pub struct CaptionLook {
     pub background: bool,
 }
 
-fn caption_track(s: &Session) -> Option<(u64, filmcraft_project::CaptionStyle)> {
+pub(crate) fn caption_track(s: &Session) -> Option<(u64, filmcraft_project::CaptionStyle)> {
     s.active_sequence()?.caption_tracks.first().map(|t| (t.id.0, t.style.clone()))
 }
 
