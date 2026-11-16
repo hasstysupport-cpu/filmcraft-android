@@ -1017,3 +1017,68 @@ fn a_transition_on_a_cut_without_spare_footage_shortens_the_video_by_its_length(
     m.undo();
     assert_eq!(m.timeline().unwrap().duration, before);
 }
+
+/// A small SRT sidecar: two cues, the first starting mid-frame (0.5 s at 30 fps).
+fn srt(dir: &Path) -> String {
+    let p = dir.join("captions.srt");
+    std::fs::write(&p, "1\n00:00:00,500 --> 00:00:02,000\nHello there\n\n2\n00:00:02,500 --> 00:00:04,000\nSecond line\n").unwrap();
+    p.to_str().unwrap().to_string()
+}
+
+#[test]
+fn an_srt_file_becomes_editable_captions_and_exports_back() {
+    let (m, d, _ids) = two_clips();
+    let file = srt(&d);
+    let n = m.import_captions(file.clone()).unwrap();
+    assert_eq!(n, 2);
+    let caps = m.timeline().unwrap().captions;
+    assert_eq!(caps.len(), 2);
+    assert_eq!(caps[0].text, "Hello there");
+    assert_eq!(caps[0].start, SEC / 2, "snapped to the sequence's frames");
+    // editable through the same commands auto captions use
+    m.execute("captions.setText".into(), json!({"caption": caps[0].id, "text": "Edited"}).to_string()).unwrap();
+    assert_eq!(m.timeline().unwrap().captions[0].text, "Edited");
+    m.undo();
+    assert_eq!(m.timeline().unwrap().captions[0].text, "Hello there");
+    // and the whole import is one undo step of its own
+    m.undo();
+    assert!(m.timeline().unwrap().captions.is_empty());
+    // import again and the track comes back out as SRT
+    m.import_captions(file).unwrap();
+    let out = d.join("out.srt");
+    m.export_captions(out.to_str().unwrap().to_string(), "srt".into()).unwrap();
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("Hello there") && text.contains("Second line"), "{text}");
+}
+
+#[test]
+fn caption_import_refuses_bad_files_with_a_clear_error() {
+    let (m, d, _ids) = two_clips();
+    let not_captions = d.join("notes.txt");
+    std::fs::write(&not_captions, "just some notes, no cues here").unwrap();
+    let e = m.import_captions(not_captions.to_str().unwrap().to_string()).unwrap_err().to_string();
+    assert!(e.contains("isn't a caption file"), "{e}");
+    let e = m.import_captions(d.join("missing.srt").to_str().unwrap().to_string()).unwrap_err().to_string();
+    assert!(e.contains("couldn't be read"), "{e}");
+    let empty = d.join("empty.vtt");
+    std::fs::write(&empty, "WEBVTT\n").unwrap();
+    let e = m.import_captions(empty.to_str().unwrap().to_string()).unwrap_err().to_string();
+    assert!(e.contains("no captions"), "{e}");
+    // nothing was placed
+    assert!(m.timeline().unwrap().captions.is_empty());
+}
+
+#[test]
+fn caption_looks_apply_in_one_undo_step_and_keep_the_captions() {
+    let (m, d, _ids) = two_clips();
+    let file = srt(&d);
+    m.import_captions(file).unwrap();
+    let presets = m.caption_presets();
+    assert_eq!(presets.len(), 6);
+    assert!(presets.iter().any(|p| p.id == "violet"));
+    m.set_caption_preset("violet".into()).unwrap();
+    assert_eq!(m.timeline().unwrap().captions.len(), 2, "the look keeps the captions");
+    m.undo();
+    assert_eq!(m.timeline().unwrap().captions.len(), 2, "the look is its own undo step");
+    assert!(m.set_caption_preset("no-such-look".into()).is_err());
+}
