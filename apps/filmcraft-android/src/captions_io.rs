@@ -131,6 +131,12 @@ pub(crate) fn preset_list() -> Vec<CaptionPreset> {
         CaptionPreset { id: "bold-pop".into(), name: "Bold pop".into(), description: "Large, heavy box".into() },
         CaptionPreset { id: "broadcast".into(), name: "Broadcast".into(), description: "Top of the frame".into() },
         CaptionPreset { id: "violet".into(), name: "Violet".into(), description: "VantaCut's accent".into() },
+        CaptionPreset { id: "neon".into(), name: "Neon".into(), description: "Violet words with a glowing edge".into() },
+        CaptionPreset { id: "cinema".into(), name: "Cinema".into(), description: "Amber serif, wide spacing".into() },
+        CaptionPreset { id: "impact".into(), name: "Impact".into(), description: "Huge condensed, thick edge".into() },
+        CaptionPreset { id: "gold".into(), name: "Gold".into(), description: "Amiri with a golden edge".into() },
+        CaptionPreset { id: "typewriter".into(), name: "Typewriter".into(), description: "Space-mono letters, no box".into() },
+        CaptionPreset { id: "reel".into(), name: "Reel".into(), description: "Rounded, boxed, low".into() },
     ]
 }
 
@@ -158,5 +164,11 @@ fn presets() -> Vec<PresetStyle> {
         PresetStyle { id: "bold-pop", font: "Cairo", size: 66.0, color: [255, 255, 255, 255], background: true, background_color: [8, 9, 13, 230], outline: 0.0, outline_color: [0, 0, 0, 255], anchor: A::Bottom, margin: 0.12, line_spacing: 1.3 },
         PresetStyle { id: "broadcast", font: "Cairo", size: 48.0, color: [255, 255, 255, 255], background: true, background_color: [16, 17, 24, 217], outline: 0.0, outline_color: [0, 0, 0, 255], anchor: A::Top, margin: 0.08, line_spacing: 1.25 },
         PresetStyle { id: "violet", font: "Cairo", size: 56.0, color: [245, 245, 247, 255], background: true, background_color: [58, 42, 107, 220], outline: 0.0, outline_color: [0, 0, 0, 255], anchor: A::Bottom, margin: 0.1, line_spacing: 1.28 },
+        PresetStyle { id: "neon", font: "Cairo", size: 58.0, color: [196, 181, 253, 255], background: false, background_color: [0, 0, 0, 0], outline: 5.0, outline_color: [139, 92, 246, 255], anchor: A::Bottom, margin: 0.1, line_spacing: 1.3 },
+        PresetStyle { id: "cinema", font: "Playfair Display", size: 52.0, color: [251, 191, 36, 255], background: false, background_color: [0, 0, 0, 0], outline: 3.0, outline_color: [8, 9, 13, 255], anchor: A::Bottom, margin: 0.12, line_spacing: 1.45 },
+        PresetStyle { id: "impact", font: "Anton", size: 72.0, color: [255, 255, 255, 255], background: false, background_color: [0, 0, 0, 0], outline: 6.0, outline_color: [8, 9, 13, 255], anchor: A::Bottom, margin: 0.1, line_spacing: 1.15 },
+        PresetStyle { id: "gold", font: "Amiri", size: 58.0, color: [237, 201, 111, 255], background: false, background_color: [0, 0, 0, 0], outline: 4.0, outline_color: [42, 26, 8, 255], anchor: A::Bottom, margin: 0.1, line_spacing: 1.4 },
+        PresetStyle { id: "typewriter", font: "Space Mono", size: 46.0, color: [245, 245, 247, 255], background: false, background_color: [0, 0, 0, 0], outline: 2.0, outline_color: [8, 9, 13, 255], anchor: A::Bottom, margin: 0.09, line_spacing: 1.2 },
+        PresetStyle { id: "reel", font: "Rubik", size: 50.0, color: [255, 255, 255, 255], background: true, background_color: [244, 63, 94, 216], outline: 0.0, outline_color: [0, 0, 0, 255], anchor: A::Bottom, margin: 0.14, line_spacing: 1.25 },
     ]
 }

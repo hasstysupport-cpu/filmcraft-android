@@ -31,6 +31,26 @@ pub static CAIRO_MEDIUM: &[u8] = include_bytes!("../../../assets/fonts/Cairo-Med
 pub static CAIRO_SEMIBOLD: &[u8] = include_bytes!("../../../assets/fonts/Cairo-SemiBold.ttf");
 pub static CAIRO_BOLD: &[u8] = include_bytes!("../../../assets/fonts/Cairo-Bold.ttf");
 
+/// The VantaCut font pack (each SIL OFL 1.1; see `assets/fonts/OFL-*.txt`): more Arabic families
+/// (Amiri, Tajawal, Noto Kufi Arabic) and Latin display, serif, rounded and mono faces for titles
+/// and caption looks. Variable fonts join at their default instance; missing styles are synthesized.
+pub static AMIRI_REGULAR: &[u8] = include_bytes!("../../../assets/fonts/Amiri-Regular.ttf");
+pub static AMIRI_BOLD: &[u8] = include_bytes!("../../../assets/fonts/Amiri-Bold.ttf");
+pub static TAJAWAL_REGULAR: &[u8] = include_bytes!("../../../assets/fonts/Tajawal-Regular.ttf");
+pub static TAJAWAL_BOLD: &[u8] = include_bytes!("../../../assets/fonts/Tajawal-Bold.ttf");
+pub static NOTO_KUFI_ARABIC: &[u8] = include_bytes!("../../../assets/fonts/NotoKufiArabic[wght].ttf");
+pub static MONTSERRAT: &[u8] = include_bytes!("../../../assets/fonts/Montserrat[wght].ttf");
+pub static POPPINS_REGULAR: &[u8] = include_bytes!("../../../assets/fonts/Poppins-Regular.ttf");
+pub static POPPINS_BOLD: &[u8] = include_bytes!("../../../assets/fonts/Poppins-Bold.ttf");
+pub static BEBAS_NEUE: &[u8] = include_bytes!("../../../assets/fonts/BebasNeue-Regular.ttf");
+pub static OSWALD: &[u8] = include_bytes!("../../../assets/fonts/Oswald[wght].ttf");
+pub static PLAYFAIR_DISPLAY: &[u8] = include_bytes!("../../../assets/fonts/PlayfairDisplay[wght].ttf");
+pub static RUBIK: &[u8] = include_bytes!("../../../assets/fonts/Rubik[wght].ttf");
+pub static DANCING_SCRIPT: &[u8] = include_bytes!("../../../assets/fonts/DancingScript[wght].ttf");
+pub static ANTON: &[u8] = include_bytes!("../../../assets/fonts/Anton-Regular.ttf");
+pub static SPACE_MONO_REGULAR: &[u8] = include_bytes!("../../../assets/fonts/SpaceMono-Regular.ttf");
+pub static SPACE_MONO_BOLD: &[u8] = include_bytes!("../../../assets/fonts/SpaceMono-Bold.ttf");
+
 /// A font from the optional craft-fonts build input (empty unless built with `CRAFT_FONTS_DIR`; see
 /// `build.rs` and storytold/craft-fonts `docs/integration.md`).
 pub struct CraftFont {
@@ -336,7 +356,13 @@ fn db() -> &'static RwLock<Db> {
         };
         let fallback = Arc::new(Face { id: 0, info, bytes: OnceLock::new(), shaper: OnceLock::new() });
         let mut db = Db { faces: Vec::new(), fallback, scanned: false };
-        for b in [INTER_REGULAR, INTER_MEDIUM, INTER_SEMIBOLD, INTER_BOLD, INTER_ITALIC, JETBRAINS_MONO_REGULAR, NOTO_SERIF_REGULAR, CAIRO_REGULAR, CAIRO_MEDIUM, CAIRO_SEMIBOLD, CAIRO_BOLD] {
+        for b in [
+            INTER_REGULAR, INTER_MEDIUM, INTER_SEMIBOLD, INTER_BOLD, INTER_ITALIC, JETBRAINS_MONO_REGULAR, NOTO_SERIF_REGULAR,
+            CAIRO_REGULAR, CAIRO_MEDIUM, CAIRO_SEMIBOLD, CAIRO_BOLD,
+            AMIRI_REGULAR, AMIRI_BOLD, TAJAWAL_REGULAR, TAJAWAL_BOLD, NOTO_KUFI_ARABIC,
+            MONTSERRAT, POPPINS_REGULAR, POPPINS_BOLD, BEBAS_NEUE, OSWALD, PLAYFAIR_DISPLAY, RUBIK, DANCING_SCRIPT, ANTON,
+            SPACE_MONO_REGULAR, SPACE_MONO_BOLD,
+        ] {
             for n in read_faces_bytes(b) {
                 push(&mut db, info_from(n, FaceData::Static(b), "bundled"));
             }

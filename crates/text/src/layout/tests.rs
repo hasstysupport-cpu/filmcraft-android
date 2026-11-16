@@ -372,3 +372,20 @@ fn arabic_captions_wrap_and_stay_readable() {
     }
     assert!(!l.overflow);
 }
+
+#[test]
+fn the_vantacut_font_pack_is_bundled_and_covers_its_scripts() {
+    // Arabic families cover Arabic text
+    for family in ["Amiri", "Tajawal", "Noto Kufi Arabic"] {
+        assert!(
+            crate::fonts::all_faces().iter().any(|f| f.info.family == family && f.covers_text("\u{0645}\u{0631}\u{062d}\u{0628}\u{0627}")),
+            "{family} is missing or does not cover Arabic"
+        );
+    }
+    // Latin families resolve and lay out
+    for family in ["Montserrat", "Poppins", "Bebas Neue", "Oswald", "Playfair Display", "Rubik", "Dancing Script", "Anton", "Space Mono"] {
+        let style = TextStyle { family: family.into(), ..st(48.0) };
+        let l = layout("VantaCut", &style, &ParagraphStyle::default());
+        assert!(!l.glyphs.is_empty(), "{family} laid out no glyphs");
+    }
+}

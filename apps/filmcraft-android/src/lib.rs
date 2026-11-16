@@ -666,6 +666,11 @@ impl MobileSession {
         text::fonts(&mut self.lock())
     }
 
+    /// Register a font file's bytes (a downloaded font); returns how many faces it added.
+    pub fn add_font_bytes(&self, bytes: Vec<u8>) -> u32 {
+        u32::try_from(filmcraft_text::fonts::add_font_data(bytes).len()).unwrap_or(0)
+    }
+
     /// Where a picture, video or text clip sits on the frame.
     pub fn placement(&self, clip: u64) -> Result<Placement, MobileError> {
         placement::placement(&mut self.lock(), clip)

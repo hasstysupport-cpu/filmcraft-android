@@ -546,6 +546,30 @@ pub struct CaptionLook {
     pub position: CaptionPosition,
     /// A dark box behind the words.
     pub background: bool,
+    /// Font family; unknown or empty falls back to Cairo.
+    pub font: String,
+    /// The words' colour, ARGB.
+    pub color: u32,
+    /// The box's colour, ARGB (seen only with `background`).
+    pub background_color: u32,
+    /// Outline width in pixels at 1080 lines (0 = none).
+    pub outline: f64,
+    /// The outline's colour, ARGB.
+    pub outline_color: u32,
+    /// Line height as a multiple of the font size (1.0–2.0).
+    pub line_spacing: f64,
+    /// Distance from the anchored edge, as a fraction of the frame's height (0.02–0.3).
+    pub margin: f64,
+}
+
+/// Pack sRGB + alpha into ARGB, the way [`TextStyle::color`] does.
+fn argb(c: [u8; 4]) -> u32 {
+    (u32::from(c[3]) << 24) | (u32::from(c[0]) << 16) | (u32::from(c[1]) << 8) | u32::from(c[2])
+}
+
+/// Unpack ARGB into sRGB + alpha.
+fn channels(c: u32) -> [u8; 4] {
+    [(c >> 16) as u8, (c >> 8) as u8, c as u8, (c >> 24) as u8]
 }
 
 pub(crate) fn caption_track(s: &Session) -> Option<(u64, filmcraft_project::CaptionStyle)> {
@@ -562,7 +586,18 @@ pub(crate) fn look(s: &Session) -> Option<CaptionLook> {
         filmcraft_project::CaptionAnchor::Middle => CaptionPosition::Middle,
         filmcraft_project::CaptionAnchor::Bottom => CaptionPosition::Bottom,
     };
-    Some(CaptionLook { scale: f64::from(style.size) / size.max(1.0), position, background: style.background })
+    Some(CaptionLook {
+        scale: f64::from(style.size) / size.max(1.0),
+        position,
+        background: style.background,
+        font: style.font.clone(),
+        color: argb(style.color),
+        background_color: argb(style.background_color),
+        outline: f64::from(style.outline),
+        outline_color: argb(style.outline_color),
+        line_spacing: f64::from(style.line_spacing),
+        margin: f64::from(style.margin),
+    })
 }
 
 /// Change the captions' look: one undo step, or with `merge` folded into the last change made with
@@ -578,14 +613,27 @@ pub(crate) fn set_look(s: &mut Session, l: &CaptionLook, merge: bool) -> Result<
         CaptionPosition::Bottom => filmcraft_project::CaptionAnchor::Bottom,
     };
     let background = l.background;
+    let font = if l.font.trim().is_empty() { "Cairo".to_string() } else { l.font.trim().to_string() };
+    let color = channels(if l.color == 0 { 0xFFFF_FFFF } else { l.color });
+    let background_color = channels(if l.background_color == 0 { 0x3C_00_00_00 } else { l.background_color });
+    let outline = if l.outline.is_finite() { l.outline.clamp(0.0, 12.0) as f32 } else { 0.0 };
+    let outline_color = channels(if l.outline_color == 0 { 0xFF_00_00_00 } else { l.outline_color });
+    let line_spacing = if l.line_spacing.is_finite() { l.line_spacing.clamp(1.0, 2.0) as f32 } else { 1.25 };
+    let margin = if l.margin.is_finite() { l.margin.clamp(0.02, 0.3) as f32 } else { 0.1 };
     s.edit_sequence_as("Caption Style", merge.then_some("caption-look"), |q, _, _| {
         let t = q.caption_tracks.iter_mut().find(|t| t.id.0 == track).ok_or_else(|| filmcraft_engine::EngineError::Other("no captions".into()))?;
         t.style.size = (size * scale) as f32;
         t.style.anchor = anchor;
         t.style.background = background;
-        // without the box, a dark edge keeps the words readable on bright pictures
-        t.style.outline = if background { 0.0 } else { CAPTION_OUTLINE };
-        t.style.outline_color = [0, 0, 0, 255];
+        t.style.font = font;
+        t.style.color = color;
+        t.style.background_color = background_color;
+        // without the box, an edge keeps the words readable on bright pictures
+        // the look is exactly what was asked; the pickers choose a readable edge when there is no box
+        t.style.outline = outline;
+        t.style.outline_color = outline_color;
+        t.style.line_spacing = line_spacing;
+        t.style.margin = margin;
         Ok(())
     })?;
     edits::settle(s);

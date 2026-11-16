@@ -847,14 +847,15 @@ fn captions_come_from_what_is_said_fit_the_frame_and_can_be_edited() {
     let undo_before = m.poll().undo_label;
     for k in 1..=5 {
         let scale = 1.0 + 0.1 * f64::from(k);
-        m.set_caption_look(speech::CaptionLook { scale, position: speech::CaptionPosition::Top, background: false }, true).unwrap();
+        m.set_caption_look(speech::CaptionLook { scale, position: speech::CaptionPosition::Top, background: false, font: String::new(), color: 0xFFFF_FFFF, background_color: 0x3C_00_00_00, outline: 0.0, outline_color: 0xFF_00_00_00, line_spacing: 1.25, margin: 0.1 }, true).unwrap();
     }
     m.undo();
     // a drag is one undo step
     assert_eq!(m.poll().undo_label, undo_before);
-    m.set_caption_look(speech::CaptionLook { scale: 1.5, position: speech::CaptionPosition::Top, background: false }, false).unwrap();
+    m.set_caption_look(speech::CaptionLook { scale: 1.5, position: speech::CaptionPosition::Top, background: false, font: "Amiri".into(), color: 0xFF_FF_FF_FF, background_color: 0x3C_00_00_00, outline: 3.0, outline_color: 0xFF_00_00_00, line_spacing: 1.25, margin: 0.1 }, false).unwrap();
     let look = m.caption_look().unwrap();
     assert!((look.scale - 1.5).abs() < 0.01 && look.position == speech::CaptionPosition::Top && !look.background, "{look:?}");
+    assert_eq!(look.font, "Amiri");
     let id = t.captions[0].id;
     m.set_caption_text(id, "Hi world".into()).unwrap();
     assert_eq!(m.timeline().unwrap().captions[0].text, "Hi world");
@@ -1074,8 +1075,10 @@ fn caption_looks_apply_in_one_undo_step_and_keep_the_captions() {
     let file = srt(&d);
     m.import_captions(file).unwrap();
     let presets = m.caption_presets();
-    assert_eq!(presets.len(), 6);
+    assert_eq!(presets.len(), 12);
     assert!(presets.iter().any(|p| p.id == "violet"));
+    assert!(presets.iter().any(|p| p.id == "neon"));
+    assert!(presets.iter().any(|p| p.id == "gold"));
     m.set_caption_preset("violet".into()).unwrap();
     assert_eq!(m.timeline().unwrap().captions.len(), 2, "the look keeps the captions");
     m.undo();
@@ -1137,4 +1140,37 @@ fn setting_a_watermark_is_one_undo_step_over_the_main_track() {
     m.undo();
     assert!(m.watermark().is_none(), "setting was one undo step");
     assert_eq!(main_clips(&m).len(), ids.len());
+}
+
+#[test]
+fn the_caption_look_keeps_its_font_colours_and_spacing_and_presets_set_them() {
+    let (m, d, _ids) = two_clips();
+    m.import_captions(srt(&d)).unwrap();
+    m.set_caption_look(speech::CaptionLook {
+        scale: 1.2, position: speech::CaptionPosition::Bottom, background: true,
+        font: "Amiri".into(), color: 0xFF_8B_5C_F6, background_color: 0xE6_08_09_0D,
+        outline: 4.0, outline_color: 0xFF_F4_3F_5E, line_spacing: 1.4, margin: 0.15,
+    }, false).unwrap();
+    let look = m.caption_look().unwrap();
+    assert_eq!(look.font, "Amiri");
+    assert_eq!(look.color, 0xFF_8B_5C_F6);
+    assert_eq!(look.background_color, 0xE6_08_09_0D);
+    assert!((look.outline - 4.0).abs() < 0.01, "{look:?}");
+    assert_eq!(look.outline_color, 0xFF_F4_3F_5E);
+    assert!((look.line_spacing - 1.4).abs() < 0.01);
+    assert!((look.margin - 0.15).abs() < 0.001);
+    // the style lands on the track as channels, not the packed colour
+    let style = m.lock().active_sequence().unwrap().caption_tracks[0].style.clone();
+    assert_eq!(style.color, [139, 92, 246, 255]);
+    assert_eq!(style.outline_color, [244, 63, 94, 255]);
+    assert!((style.line_spacing - 1.4).abs() < 0.01);
+    // the gold look brings Amiri with a golden edge, the neon one a violet edge
+    m.set_caption_preset("gold".into()).unwrap();
+    let style = m.lock().active_sequence().unwrap().caption_tracks[0].style.clone();
+    assert_eq!(style.font, "Amiri");
+    assert_eq!(style.color, [237, 201, 111, 255]);
+    m.set_caption_preset("neon".into()).unwrap();
+    let style = m.lock().active_sequence().unwrap().caption_tracks[0].style.clone();
+    assert_eq!(style.outline_color, [139, 92, 246, 255]);
+    assert!(m.set_caption_preset("no-such".into()).is_err());
 }
