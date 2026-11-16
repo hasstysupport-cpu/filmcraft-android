@@ -24,6 +24,13 @@ pub static INTER_ITALIC: &[u8] = include_bytes!("../../../assets/fonts/Inter-Ita
 pub static JETBRAINS_MONO_REGULAR: &[u8] = include_bytes!("../../../assets/fonts/JetBrainsMono-Regular.ttf");
 pub static NOTO_SERIF_REGULAR: &[u8] = include_bytes!("../../../assets/fonts/NotoSerif-Regular.ttf");
 
+/// Cairo (SIL OFL 1.1; see `assets/fonts/OFL-Cairo.txt`): the Arabic family beside Inter, so
+/// Arabic and mixed Arabic/Latin text shapes and renders without a system font.
+pub static CAIRO_REGULAR: &[u8] = include_bytes!("../../../assets/fonts/Cairo-Regular.ttf");
+pub static CAIRO_MEDIUM: &[u8] = include_bytes!("../../../assets/fonts/Cairo-Medium.ttf");
+pub static CAIRO_SEMIBOLD: &[u8] = include_bytes!("../../../assets/fonts/Cairo-SemiBold.ttf");
+pub static CAIRO_BOLD: &[u8] = include_bytes!("../../../assets/fonts/Cairo-Bold.ttf");
+
 /// A font from the optional craft-fonts build input (empty unless built with `CRAFT_FONTS_DIR`; see
 /// `build.rs` and storytold/craft-fonts `docs/integration.md`).
 pub struct CraftFont {
@@ -329,7 +336,7 @@ fn db() -> &'static RwLock<Db> {
         };
         let fallback = Arc::new(Face { id: 0, info, bytes: OnceLock::new(), shaper: OnceLock::new() });
         let mut db = Db { faces: Vec::new(), fallback, scanned: false };
-        for b in [INTER_REGULAR, INTER_MEDIUM, INTER_SEMIBOLD, INTER_BOLD, INTER_ITALIC, JETBRAINS_MONO_REGULAR, NOTO_SERIF_REGULAR] {
+        for b in [INTER_REGULAR, INTER_MEDIUM, INTER_SEMIBOLD, INTER_BOLD, INTER_ITALIC, JETBRAINS_MONO_REGULAR, NOTO_SERIF_REGULAR, CAIRO_REGULAR, CAIRO_MEDIUM, CAIRO_SEMIBOLD, CAIRO_BOLD] {
             for n in read_faces_bytes(b) {
                 push(&mut db, info_from(n, FaceData::Static(b), "bundled"));
             }
