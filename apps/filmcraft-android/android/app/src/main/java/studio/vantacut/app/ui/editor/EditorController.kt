@@ -642,7 +642,7 @@ class EditorController(
     }
 
     /** The caption looks the pickers show. */
-    fun captionPresets(): List<CaptionPreset> = runCatching { engine.command { captionPresets() } }.getOrDefault(emptyList())
+    suspend fun captionPresets(): List<CaptionPreset> = runCatching { engine.command { captionPresets() } }.getOrDefault(emptyList())
 
     fun setCaptionPreset(id: String) = edit { setCaptionPreset(id) }
 
