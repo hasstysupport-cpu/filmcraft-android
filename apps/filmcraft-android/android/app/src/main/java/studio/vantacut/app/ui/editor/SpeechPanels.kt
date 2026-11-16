@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import studio.vantacut.app.core.CaptionLook
 import studio.vantacut.app.core.CaptionPosition
+import studio.vantacut.app.core.CaptionPreset
 import studio.vantacut.app.core.ModelPackage
 import studio.vantacut.app.core.SpeechAudio
 import studio.vantacut.app.core.SpeechSettings
@@ -63,6 +64,7 @@ import studio.vantacut.app.ui.Inter
 import studio.vantacut.app.ui.LucideIcons
 import studio.vantacut.app.ui.PanelAction
 import studio.vantacut.app.ui.PrimaryButton
+import studio.vantacut.app.ui.SecondaryButton
 import studio.vantacut.app.ui.SelectChip
 import studio.vantacut.app.ui.SliderRow
 import studio.vantacut.app.ui.ToolPanel
@@ -101,6 +103,8 @@ fun CaptionsPanel(ed: EditorController, close: () -> Unit, modifier: Modifier = 
     val has = ed.timeline?.captions?.isNotEmpty() == true
     var look by remember { mutableStateOf<CaptionLook?>(null) }
     LaunchedEffect(ed.timeline?.revision, has) { look = if (has) ed.captionLook() else null }
+    var looks by remember { mutableStateOf<List<CaptionPreset>>(emptyList()) }
+    LaunchedEffect(has) { looks = ed.captionPresets() }
     fun go() {
         prefs(ctx).edit().putString("model", model).putString("language", language).apply()
         val m = models.firstOrNull { it.id == model } ?: return
@@ -134,6 +138,13 @@ fun CaptionsPanel(ed: EditorController, close: () -> Unit, modifier: Modifier = 
                     PrimaryButton(if (has) "Make captions again" else "Make captions", { go() }, modifier = pad, enabled = models.isNotEmpty(), tag = "captions_make_button")
                     Spacer(Modifier.height(8.dp))
                     Text("Captions are made on this phone. The sound never leaves it.", style = VcType.BodySmall, color = Vc.Detail, modifier = pad)
+                    Spacer(Modifier.height(16.dp))
+                    Row(Modifier.fillMaxWidth().padding(horizontal = VcSize.PanelPadding), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SecondaryButton("Import file\u2026", { ed.importCaptions() }, modifier = Modifier.weight(1f), enabled = running == null, tag = "captions_import_button")
+                        SecondaryButton("Export SRT", { ed.exportCaptions() }, modifier = Modifier.weight(1f), enabled = has, tag = "captions_export_button")
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text("Bring in an SRT (or VTT, TTML, SCC, STL) file, or save the captions as a sidecar.", style = VcType.BodySmall, color = Vc.Detail, modifier = pad)
                 }
             }
             Spacer(Modifier.height(12.dp))
@@ -168,6 +179,14 @@ fun CaptionsPanel(ed: EditorController, close: () -> Unit, modifier: Modifier = 
                     look = v
                     ed.setCaptionLook(v, merge = false)
                 }, tag = "captions_box_chip")
+            }
+            if (looks.isNotEmpty()) {
+                Spacer(Modifier.height(8.dp))
+                Text("Looks", style = VcType.Label, color = Vc.Secondary, modifier = Modifier.padding(horizontal = VcSize.PanelPadding))
+                Spacer(Modifier.height(8.dp))
+                ChipRow {
+                    for (p in looks) SelectChip(p.name, false, { ed.setCaptionPreset(p.id) }, tag = "captions_look_${p.id}")
+                }
             }
             Spacer(Modifier.height(12.dp))
         }

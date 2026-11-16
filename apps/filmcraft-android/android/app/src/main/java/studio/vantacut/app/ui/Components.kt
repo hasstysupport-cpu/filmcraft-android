@@ -93,6 +93,29 @@ fun VcIconButton(
     }
 }
 
+/** A quiet secondary action on a panel: a raised pill with a label. */
+@Composable
+fun SecondaryButton(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    tag: String? = null,
+) {
+    Box(
+        modifier
+            .height(56.dp)
+            .clip(RoundedCornerShape(50))
+            .background(Vc.Raised)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .then(if (tag != null) Modifier.testTag(tag) else Modifier)
+            .padding(horizontal = 20.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(label, style = VcType.Label, color = if (enabled) Vc.Title else Vc.Disabled, maxLines = 1)
+    }
+}
+
 /** A tool on the bottom tool bar: an icon in a 40 dp chip over a short label, 80 dp square. */
 @Composable
 fun ToolTile(

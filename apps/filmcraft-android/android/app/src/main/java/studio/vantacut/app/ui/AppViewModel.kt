@@ -127,6 +127,22 @@ class AppViewModel(app: Application) : AndroidViewModel(app), EditorHost {
         micRequests.trySend(onGranted)
     }
 
+    override fun stagingDir(): File = File(getApplication<Application>().cacheDir, "captions").apply { mkdirs() }
+
+    override fun stageFile(uri: Uri, name: String): String {
+        val dir = stagingDir()
+        val ext = getApplication<Application>().contentResolver.getType(uri)?.substringAfterLast('/')?.takeIf { it.length in 2..5 && '/' !in it } ?: "srt"
+        val file = File(dir, "$name.$ext")
+        getApplication<Application>().contentResolver.openInputStream(uri)?.use { i -> file.outputStream().use { i.copyTo(it) } }
+            ?: throw java.io.IOException("That file couldn't be opened.")
+        return file.path
+    }
+
+    override fun savePicked(uri: Uri, staged: File) {
+        getApplication<Application>().contentResolver.openOutputStream(uri, "wt")?.use { o -> staged.inputStream().use { i -> i.copyTo(o) } }
+            ?: throw java.io.IOException("That file couldn't be written.")
+    }
+
     // ---- navigation ----
 
     fun show(s: Screen) {

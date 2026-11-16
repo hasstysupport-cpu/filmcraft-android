@@ -35,6 +35,8 @@ class MainActivity : ComponentActivity() {
     private val pickVisual = registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(100)) { deliver(it) }
     private val pickOneVisual = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { deliver(listOfNotNull(it)) }
     private val openDocuments = registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { deliver(it) }
+    private val openOneDocument = registerForActivityResult(ActivityResultContracts.OpenDocument()) { deliver(listOfNotNull(it)) }
+    private val createDocument = registerForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { deliver(listOfNotNull(it)) }
     private val mic = registerForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
         val run = micGranted
         micGranted = null
@@ -88,6 +90,8 @@ class MainActivity : ComponentActivity() {
                 PickKind.ExtractAudioVideo -> pickOneVisual.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly))
                 PickKind.FilesVisual -> openDocuments.launch(arrayOf("image/*", "video/*"))
                 PickKind.FilesAudio -> openDocuments.launch(arrayOf("audio/*"))
+                PickKind.CaptionsFile -> openOneDocument.launch(arrayOf("*/*"))
+                PickKind.CaptionsSave -> createDocument.launch("captions.srt")
             }
         }
     }
@@ -107,7 +111,7 @@ class MainActivity : ComponentActivity() {
         mic.launch(Manifest.permission.RECORD_AUDIO)
     }
 
-    /** Videos and pictures other apps open with or share to FilmCraft: a new project from them. */
+    /** Videos and pictures other apps open with or share to VantaCut: a new project from them. */
     private fun handle(intent: Intent?) {
         val uris: List<Uri> = when (intent?.action) {
             Intent.ACTION_VIEW -> listOfNotNull(intent.data)

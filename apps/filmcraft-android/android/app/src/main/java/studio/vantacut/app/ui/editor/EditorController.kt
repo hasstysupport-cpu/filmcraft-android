@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import studio.vantacut.app.core.CaptionInfo
 import studio.vantacut.app.core.CaptionLook
+import studio.vantacut.app.core.CaptionPreset
 import studio.vantacut.app.core.CaptionStatus
 import studio.vantacut.app.core.ClipInfo
 import studio.vantacut.app.core.ClipKind
@@ -28,6 +29,7 @@ import studio.vantacut.app.core.TransitionInfo
 import studio.vantacut.app.engine.Engine
 import studio.vantacut.app.engine.ProjectEntry
 import studio.vantacut.app.engine.Projects
+import java.io.File
 import studio.vantacut.app.engine.intoBitmap
 import studio.vantacut.app.engine.userMessage
 import kotlinx.coroutines.CoroutineScope
@@ -73,9 +75,15 @@ interface EditorHost {
     fun export()
     /** Ask for the microphone; [onGranted] runs once it may be used. */
     fun requestMicrophone(onGranted: () -> Unit)
+    /** A scratch folder the engine can read and write (the engine works with plain paths). */
+    fun stagingDir(): File
+    /** Copy a picked [uri] into [name] in the staging folder; returns the path for the engine. */
+    fun stageFile(uri: Uri, name: String): String
+    /** Write a finished [staged] file to the [uri] the user chose to save it to. */
+    fun savePicked(uri: Uri, staged: File)
 }
 
-enum class PickKind { PhotosAndVideos, FilesVisual, FilesAudio, ReplaceVisual, ExtractAudioVideo }
+enum class PickKind { PhotosAndVideos, FilesVisual, FilesAudio, ReplaceVisual, ExtractAudioVideo, CaptionsFile, CaptionsSave }
 
 /**
  * The open project in the editor: the timeline as the engine last reported it, the playhead,
@@ -631,6 +639,45 @@ class EditorController(
     fun deleteCaptions() {
         selectedCaption = null
         edit { deleteCaptions() }
+    }
+
+    /** The caption looks the pickers show. */
+    fun captionPresets(): List<CaptionPreset> = runCatching { engine.command { captionPresets() } }.getOrDefault(emptyList())
+
+    fun setCaptionPreset(id: String) = edit { setCaptionPreset(id) }
+
+    /** Read a caption file the user picked and place it as the sequence's captions. */
+    fun importCaptions() {
+        host.pick(PickKind.CaptionsFile) { uris ->
+            val uri = uris.firstOrNull() ?: return@pick
+            scope.launch {
+                try {
+                    val staged = host.stageFile(uri, "captions")
+                    val n = engine.command { importCaptions(staged) }
+                    host.tell("Placed $n captions on the timeline.")
+                } catch (e: Exception) {
+                    host.tell(e.userMessage)
+                }
+                refresh()
+            }
+        }
+    }
+
+    /** Write the sequence's captions to a file the user picked (SRT). */
+    fun exportCaptions() {
+        host.pick(PickKind.CaptionsSave) { uris ->
+            val uri = uris.firstOrNull() ?: return@pick
+            scope.launch {
+                try {
+                    val staged = File(host.stagingDir(), "captions.srt")
+                    engine.command { exportCaptions(staged.path, "srt") }
+                    host.savePicked(uri, staged)
+                    host.tell("Captions saved.")
+                } catch (e: Exception) {
+                    host.tell(e.userMessage)
+                }
+            }
+        }
     }
 
     // ---- placement on the frame ----
