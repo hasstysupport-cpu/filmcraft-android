@@ -68,7 +68,7 @@ fn to_argb(c: &[f32; 4]) -> u32 {
 }
 
 /// The default size of new text: 13 % of the frame's short side, big enough to read on a phone.
-fn default_size(w: u32, h: u32) -> f64 {
+pub(crate) fn default_size(w: u32, h: u32) -> f64 {
     f64::from(w.min(h)) * 0.13
 }
 
@@ -105,7 +105,7 @@ pub(crate) fn add_text(s: &mut Session, text: &str) -> Result<Option<u64>, Mobil
 
 /// Anchor a text layer at its box's centre and put that centre at (`cx`, `cy`): so it stays
 /// put when the text or its size changes, and turns and scales about its middle.
-fn recenter(s: &mut Session, clip: u64, cx: f64, cy: f64) -> filmcraft_engine::Result<()> {
+pub(crate) fn recenter(s: &mut Session, clip: u64, cx: f64, cy: f64) -> filmcraft_engine::Result<()> {
     let v = s.execute("graphics.list", json!({"clip": clip}))?;
     let l = v["layers"].as_array().and_then(|a| a.first()).cloned().unwrap_or_default();
     let num = |x: &Value| x.as_f64().filter(|v| v.is_finite()).unwrap_or(0.0);

@@ -1082,3 +1082,59 @@ fn caption_looks_apply_in_one_undo_step_and_keep_the_captions() {
     assert_eq!(m.timeline().unwrap().captions.len(), 2, "the look is its own undo step");
     assert!(m.set_caption_preset("no-such-look".into()).is_err());
 }
+
+#[test]
+fn a_text_watermark_sits_in_its_corner_over_the_whole_sequence() {
+    let (m, _d, ids) = two_clips();
+    let total: i64 = ids.iter().map(|&c| clip(&m, c).duration).sum();
+    let id = m.set_text_watermark("@vantacut".into(), WatermarkCorner::BottomRight, 60.0).unwrap();
+    let w = m.watermark().unwrap();
+    assert_eq!(w.clip, id);
+    assert_eq!(w.kind, "text");
+    assert_eq!(w.text, "@vantacut");
+    assert_eq!(w.corner, WatermarkCorner::BottomRight);
+    assert!((w.opacity - 60.0).abs() < 0.01);
+    assert_eq!(clip(&m, id).duration, total, "the watermark spans the whole sequence");
+    let t = m.timeline().unwrap();
+    assert_eq!(t.lanes.iter().flat_map(|l| &l.clips).filter(|c| c.id == id).count(), 1, "the watermark lives on one overlay lane");
+    // replacing swaps the words in place
+    let id2 = m.set_text_watermark("new".into(), WatermarkCorner::TopLeft, 100.0).unwrap();
+    assert_ne!(id2, id, "the old watermark clip was replaced");
+    let w = m.watermark().unwrap();
+    assert_eq!(w.text, "new");
+    assert_eq!(w.corner, WatermarkCorner::TopLeft);
+    assert!(m.timeline().unwrap().lanes.iter().flat_map(|l| &l.clips).all(|c| c.id != id));
+    // blank words are refused
+    assert!(m.set_text_watermark("   ".into(), WatermarkCorner::Center, 50.0).is_err());
+    assert_eq!(m.watermark().unwrap().text, "new");
+}
+
+#[test]
+fn an_image_watermark_is_found_and_removed_and_undo_brings_it_back() {
+    let (m, d, _ids) = two_clips();
+    let png = picture(&d);
+    let id = m.set_image_watermark(png.clone(), WatermarkCorner::TopRight, 80.0).unwrap();
+    let w = m.watermark().unwrap();
+    assert_eq!(w.kind, "image");
+    assert_eq!(w.path, png);
+    assert_eq!(w.corner, WatermarkCorner::TopRight);
+    assert!(m.remove_watermark().unwrap());
+    assert!(m.watermark().is_none());
+    m.undo();
+    let w = m.watermark().unwrap();
+    assert_eq!(w.clip, id, "removing was one undo step");
+    assert!(m.remove_watermark().unwrap());
+    assert!(!m.remove_watermark().unwrap(), "removing again reports there was none");
+}
+
+#[test]
+fn setting_a_watermark_is_one_undo_step_over_the_main_track() {
+    let (m, _d, ids) = two_clips();
+    m.forget_history();
+    m.set_text_watermark("wm".into(), WatermarkCorner::BottomLeft, 100.0).unwrap();
+    let main = main_clips(&m);
+    assert_eq!(main.len(), ids.len(), "the main track keeps its clips");
+    m.undo();
+    assert!(m.watermark().is_none(), "setting was one undo step");
+    assert_eq!(main_clips(&m).len(), ids.len());
+}

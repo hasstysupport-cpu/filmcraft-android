@@ -34,6 +34,7 @@ pub mod render;
 pub mod samples;
 pub mod speech;
 pub mod text;
+pub mod watermark;
 
 use export::{ExportPlan, ExportSettings, ExportStatus};
 use model::TimelineInfo;
@@ -42,6 +43,7 @@ use render::Renderer;
 use captions_io::CaptionPreset;
 use speech::{CaptionLook, CaptionStatus, SpeechAudio, SpeechSettings};
 use text::{Placement, TextStyle};
+pub use watermark::{WatermarkCorner, WatermarkInfo};
 
 uniffi::setup_scaffolding!();
 
@@ -510,6 +512,26 @@ impl MobileSession {
     /// Give the captions one of the preset looks.
     pub fn set_caption_preset(&self, id: String) -> Result<(), MobileError> {
         captions_io::apply_preset(&mut self.lock(), &id)
+    }
+
+    /// The watermark over the open sequence, if there is one.
+    pub fn watermark(&self) -> Option<WatermarkInfo> {
+        watermark::get(&mut self.lock())
+    }
+
+    /// Set a text watermark spanning the whole sequence; replaces any watermark. Returns its clip.
+    pub fn set_text_watermark(&self, text: String, corner: WatermarkCorner, opacity: f64) -> Result<u64, MobileError> {
+        watermark::set_text(&mut self.lock(), &text, corner, opacity)
+    }
+
+    /// Set a picture watermark spanning the whole sequence; replaces any watermark. Returns its clip.
+    pub fn set_image_watermark(&self, path: String, corner: WatermarkCorner, opacity: f64) -> Result<u64, MobileError> {
+        watermark::set_image(&mut self.lock(), &path, corner, opacity)
+    }
+
+    /// Remove the watermark; whether there was one.
+    pub fn remove_watermark(&self) -> Result<bool, MobileError> {
+        watermark::remove(&mut self.lock())
     }
 
     /// Change a caption's words; blank words delete it.

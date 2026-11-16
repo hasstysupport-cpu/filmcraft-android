@@ -251,7 +251,7 @@ fn fades(track: &Track, id: ClipId) -> (i64, i64) {
     (fade_in, fade_out)
 }
 
-fn clip_info(s: &Session, seq: &Sequence, f: &Found<'_>) -> ClipInfo {
+pub(crate) fn clip_info(s: &Session, seq: &Sequence, f: &Found<'_>) -> ClipInfo {
     let c = f.clip;
     let pi = s.project.item(c.item);
     let mut kind = if f.kind == TrackKind::Audio { ClipKind::Audio } else { ClipKind::Video };
