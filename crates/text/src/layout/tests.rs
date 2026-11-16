@@ -343,3 +343,32 @@ fn empty_text_has_a_caret() {
     assert_eq!(l.caret(0).0, 0.0);
     assert!(l.bounds[3] > l.bounds[1]);
 }
+
+#[test]
+fn arabic_text_shapes_rtl_with_cairo() {
+    // Cairo is bundled, so Arabic shapes and renders without a system font.
+    assert!(crate::fonts::all_faces().iter().any(|f| f.info.family == "Cairo" && f.covers_text("\u{645}\u{631}\u{62d}\u{628}\u{627}")));
+    // "مرحبا Hello": the Arabic run is right-to-left, the Latin run keeps its order.
+    let text = "\u{645}\u{631}\u{62d}\u{628}\u{627} Hello";
+    let style = TextStyle { family: "Cairo".into(), ..st(48.0) };
+    let l = layout(text, &style, &ParagraphStyle::default());
+    let x_of = |byte: usize| l.glyphs.iter().find(|g| g.cluster == byte).map(|g| g.x).unwrap();
+    let meem = x_of(0);
+    let alef = x_of(8);
+    let h = x_of(10);
+    assert!(meem > alef, "meem right of alef: {meem} vs {alef}");
+    assert!(alef > h, "Arabic run right of Hello: {alef} vs {h}");
+}
+
+#[test]
+fn arabic_captions_wrap_and_stay_readable() {
+    let text = "\u{647}\u{630}\u{627} \u{647}\u{648} \u{627}\u{644}\u{646}\u{635} \u{627}\u{644}\u{639}\u{631}\u{628}\u{649} \u{627}\u{644}\u{630}\u{649} \u{64a}\u{62c}\u{628} \u{623}\u{646} \u{64a}\u{644}\u{62a}\u{641} \u{62d}\u{648}\u{644} \u{639}\u{62f}\u{629} \u{623}\u{633}\u{637}\u{631} \u{639}\u{646}\u{62f}\u{645}\u{627} \u{64a}\u{643}\u{648}\u{646} \u{627}\u{644}\u{645}\u{631}\u{628}\u{639} \u{636}\u{64a}\u{642}\u{627}";
+    let style = TextStyle { family: "Cairo".into(), ..st(44.0) };
+    let l = layout(text, &style, &ParagraphStyle { width: Some(400.0), ..Default::default() });
+    assert!(l.lines.len() >= 2, "{}", l.lines.len());
+    for line in &l.lines {
+        assert!(line.width <= 400.0 + 0.01, "{}", line.width);
+        assert!(!line.range.is_empty());
+    }
+    assert!(!l.overflow);
+}
