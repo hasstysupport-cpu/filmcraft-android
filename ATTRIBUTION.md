@@ -27,6 +27,22 @@ iconography, images or other Adobe assets; open licences only; every asset attri
 | `assets/fonts/Cairo-Bold.ttf` | The Cairo Project Authors | https://github.com/google/fonts (ofl/cairo) | OFL-1.1 (`assets/fonts/OFL-Cairo.txt`) |
 | `assets/fonts/NotoSerif-Regular.ttf` | The Noto Project Authors | https://github.com/notofonts/latin-greek-cyrillic | OFL-1.1 (`assets/fonts/OFL-NotoSerif.txt`) |
 | `assets/fonts/JetBrainsMono-Regular.ttf` | The JetBrains Mono Project Authors | https://github.com/JetBrains/JetBrainsMono | OFL-1.1 (`assets/fonts/OFL-JetBrainsMono.txt`) |
+| `assets/fonts/Amiri-Regular.ttf` | The Amiri Project Authors | https://github.com/google/fonts (ofl/amiri) | OFL-1.1 (`assets/fonts/OFL-amiri.txt`) |
+| `assets/fonts/Amiri-Bold.ttf` | The Amiri Project Authors | https://github.com/google/fonts (ofl/amiri) | OFL-1.1 (`assets/fonts/OFL-amiri.txt`) |
+| `assets/fonts/Tajawal-Regular.ttf` | Boutros International | https://github.com/google/fonts (ofl/tajawal) | OFL-1.1 (`assets/fonts/OFL-tajawal.txt`) |
+| `assets/fonts/Tajawal-Bold.ttf` | Boutros International | https://github.com/google/fonts (ofl/tajawal) | OFL-1.1 (`assets/fonts/OFL-tajawal.txt`) |
+| `assets/fonts/NotoKufiArabic[wght].ttf` | The Noto Project Authors | https://github.com/google/fonts (ofl/notokufiarabic) | OFL-1.1 (`assets/fonts/OFL-notokufiarabic.txt`) |
+| `assets/fonts/Montserrat[wght].ttf` | The Montserrat Project Authors | https://github.com/google/fonts (ofl/montserrat) | OFL-1.1 (`assets/fonts/OFL-montserrat.txt`) |
+| `assets/fonts/Poppins-Regular.ttf` | The Poppins Project Authors | https://github.com/google/fonts (ofl/poppins) | OFL-1.1 (`assets/fonts/OFL-poppins.txt`) |
+| `assets/fonts/Poppins-Bold.ttf` | The Poppins Project Authors | https://github.com/google/fonts (ofl/poppins) | OFL-1.1 (`assets/fonts/OFL-poppins.txt`) |
+| `assets/fonts/BebasNeue-Regular.ttf` | Dharma Type | https://github.com/google/fonts (ofl/bebasneue) | OFL-1.1 (`assets/fonts/OFL-bebasneue.txt`) |
+| `assets/fonts/Oswald[wght].ttf` | The Oswald Project Authors | https://github.com/google/fonts (ofl/oswald) | OFL-1.1 (`assets/fonts/OFL-oswald.txt`) |
+| `assets/fonts/PlayfairDisplay[wght].ttf` | The Playfair Display Project Authors | https://github.com/google/fonts (ofl/playfairdisplay) | OFL-1.1 (`assets/fonts/OFL-playfairdisplay.txt`) |
+| `assets/fonts/Rubik[wght].ttf` | The Rubik Project Authors | https://github.com/google/fonts (ofl/rubik) | OFL-1.1 (`assets/fonts/OFL-rubik.txt`) |
+| `assets/fonts/DancingScript[wght].ttf` | The Dancing Script Project Authors | https://github.com/google/fonts (ofl/dancingscript) | OFL-1.1 (`assets/fonts/OFL-dancingscript.txt`) |
+| `assets/fonts/Anton-Regular.ttf` | The Anton Project Authors | https://github.com/google/fonts (ofl/anton) | OFL-1.1 (`assets/fonts/OFL-anton.txt`) |
+| `assets/fonts/SpaceMono-Regular.ttf` | The Space Mono Project Authors | https://github.com/google/fonts (ofl/spacemono) | OFL-1.1 (`assets/fonts/OFL-spacemono.txt`) |
+| `assets/fonts/SpaceMono-Bold.ttf` | The Space Mono Project Authors | https://github.com/google/fonts (ofl/spacemono) | OFL-1.1 (`assets/fonts/OFL-spacemono.txt`) |
 | `assets/icons/house.svg` | Lucide Contributors (portions Cole Bemis, Feather) | https://github.com/lucide-icons/lucide (npm lucide-static 1.49.0, icons/house.svg) | ISC (`assets/icons/LICENSE-lucide.txt`) |
 | `assets/icons/undo-2.svg` | Lucide Contributors (portions Cole Bemis, Feather) | https://github.com/lucide-icons/lucide (npm lucide-static 1.49.0, icons/undo-2.svg) | ISC (`assets/icons/LICENSE-lucide.txt`) |
 | `assets/icons/redo-2.svg` | Lucide Contributors (portions Cole Bemis, Feather) | https://github.com/lucide-icons/lucide (npm lucide-static 1.49.0, icons/redo-2.svg) | ISC (`assets/icons/LICENSE-lucide.txt`) |
@@ -57,6 +73,7 @@ iconography, images or other Adobe assets; open licences only; every asset attri
 | `assets/icons/paintbrush.svg` | Lucide Contributors (portions Cole Bemis, Feather) | https://github.com/lucide-icons/lucide (npm lucide-static 1.49.0, icons/paintbrush.svg) | ISC (`assets/icons/LICENSE-lucide.txt`) |
 | `assets/icons/captions.svg` | Lucide Contributors (portions Cole Bemis, Feather) | https://github.com/lucide-icons/lucide (npm lucide-static 1.49.0, icons/captions.svg) | ISC (`assets/icons/LICENSE-lucide.txt`) |
 | `assets/icons/speech.svg` | Lucide Contributors (portions Cole Bemis, Feather) | https://github.com/lucide-icons/lucide (npm lucide-static 1.49.0, icons/speech.svg) | ISC (`assets/icons/LICENSE-lucide.txt`) |
+| `assets/icons/stamp.svg` | Lucide Contributors (portions Cole Bemis, Feather) | https://github.com/lucide-icons/lucide (npm lucide-static 1.49.0, icons/stamp.svg) | ISC (`assets/icons/LICENSE-lucide.txt`) |
 | `assets/icons/align-left.svg` | Lucide Contributors (portions Cole Bemis, Feather) | https://github.com/lucide-icons/lucide (npm lucide-static 1.49.0, icons/align-left.svg) | ISC (`assets/icons/LICENSE-lucide.txt`) |
 | `assets/icons/align-center.svg` | Lucide Contributors (portions Cole Bemis, Feather) | https://github.com/lucide-icons/lucide (npm lucide-static 1.49.0, icons/align-center.svg) | ISC (`assets/icons/LICENSE-lucide.txt`) |
 | `assets/icons/align-right.svg` | Lucide Contributors (portions Cole Bemis, Feather) | https://github.com/lucide-icons/lucide (npm lucide-static 1.49.0, icons/align-right.svg) | ISC (`assets/icons/LICENSE-lucide.txt`) |

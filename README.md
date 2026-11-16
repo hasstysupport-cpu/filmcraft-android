@@ -48,7 +48,9 @@ models (speech, voices) are downloaded only when the user activates the feature 
 * **37 cinematic filters** — including bleach bypass, midnight, golden hour, blockbuster, silk and
   crimson — previewed on the clip, with an intensity slider.
 * 23 effects, opacity, mirror and flip; move, scale and turn clips on the preview.
-* 50 transitions, intros and outros, apply to all.
+* **67 transitions**, intros and outros, apply to all.
+* **Watermark tool**: put your own text or picture over the whole video — any corner, adjustable
+  opacity, removable in one tap.
 
 ## Captions and text
 
@@ -58,7 +60,13 @@ models (speech, voices) are downloaded only when the user activates the feature 
 * **Caption import**: SRT, WebVTT, TTML, SCC, MCC and EBU STL files become editable caption clips
   on the timeline in one undo step, keeping the track's look.
 * **Caption export**: the caption track writes back out as an SRT sidecar.
-* **Six caption looks**: Classic, Clean, Minimal, Bold pop, Broadcast and Violet.
+* **Twelve caption looks** — Classic, Clean, Minimal, Bold pop, Broadcast, Violet, plus the luxury
+  set: Neon, Cinema, Impact, Gold, Typewriter and Reel.
+* **Full look controls**: font family, fill and background colours, outline width and colour, line
+  spacing and margin — sliders and swatches in the captions panel.
+* **Fonts**: 20 faces bundled (Arabic display, Latin display, script and mono, all SIL OFL 1.1),
+  and a **Fonts screen** that downloads 52 more Google-Fonts families on demand and registers them
+  with the engine for captions and text alike.
 * Arabic and mixed Arabic/English captions: shaped, wrapped and laid out right-to-left.
 * Text with presets, the phone's fonts, colours and layout.
 
@@ -72,8 +80,12 @@ models (speech, voices) are downloaded only when the user activates the feature 
 |---|---|
 | Full FilmCraft editing, timeline, projects, speech and export | ✅ working |
 | VantaCut rebrand (theme, icon, fonts, screens, package identity) | ✅ working |
-| Caption import (6 formats), SRT export, six caption looks | ✅ working |
-| Arabic shaping, RTL and wrapping in the text engine (Cairo bundled) | ✅ working |
+| Caption import (6 formats), SRT export, 12 caption looks, full look controls | ✅ working |
+| Arabic shaping, RTL and wrapping in the text engine (Cairo + Arabic display fonts bundled) | ✅ working |
+| Watermark (text or image, corner, opacity) | ✅ working |
+| Font downloads (52 Google-Fonts families, in-app) | ✅ working |
+| 67 transitions incl. cube spin, whip pan, clock wipe, checkerboard | ✅ working |
+| Downloading effects from a remote API/service | ⏸ deferred (no key-free open API found; more built-in presets shipped instead) |
 | Six new cinematic filter looks | ✅ working |
 | Compose UI tests for the new workflows | 🟡 not yet written (see TESTING.md) |
 | Word-by-word/karaoke caption highlighting, Auto Lyrics | ⏸ deferred (needs word timings) |

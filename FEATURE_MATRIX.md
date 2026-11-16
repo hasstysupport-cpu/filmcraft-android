@@ -11,7 +11,8 @@ inside FilmCraft's architecture (feature described by CapCraft, code written fre
 | Feature | CapCraft reference | FilmCraft counterpart | Dependencies | Complexity | Tests | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | Text on timeline, styles, presets, fonts, colors, layout | `concat-text` | `crates/text`, `TextTools.kt`, `text_presets()` | none (already present) | — | existing Rust text tests | ✅ working (baseline) |
-| More display fonts (OFL pack) | `concat-text/fonts/*` (AGPL repo assets, fonts themselves are OFL) | font pipeline copies `assets/fonts` at build time | font files + their OFL licenses | low | render smoke test | ⛔ pending license decision (fonts are OFL — see note 1) |
+| More display fonts (OFL pack, 16 families) | `concat-text/fonts/*` (AGPL repo assets, fonts themselves are OFL) | font pipeline copies `assets/fonts` at build time | font files + their OFL licenses | low | bundled-pack coverage test | ✅ working — 16 OFL faces fetched straight from Google Fonts (clean provenance, no CapCraft files; see note 1) |
+| In-app font downloads | CapCut-style font market | `FontDownloads.kt` + Fonts screen; engine `add_font_data` | HTTPS to google/fonts; no key, no account | medium | download/magic-check/register logic | ✅ working (52 families, resumable, verified) |
 | Text outlines, shadows, backgrounds | `concat-text` TitleStyle | CaptionStyle has outline+background; text clip style does not | engine `crates/text` extension | medium | Rust unit + render test | ⏸ deferred (Phase 3) |
 | Word-art treatments, bubbles, shapes | `concat-text` (bubbles, shapes) | none | port of algorithms or reimplementation | high | Rust unit + UI | ⛔ pending license decision |
 | Text entrance/exit/loop animations | `concat-text` animations | none (text is static per style) | engine animation model | high | Rust + preview test | ⏸ deferred (Phase 3) |
@@ -28,7 +29,8 @@ policy; they can also be fetched from Google Fonts directly (same files, cleaner
 | Auto captions (Whisper, on-device) | `concat-speech` / sherpa-onnx | `crates/speech` + `speech.rs` + `SpeechPanels.kt` | Whisper models, downloaded on demand | — | existing | ✅ working (baseline, preserved) |
 | Caption import (SRT) | `capcraft-android/src/subtitles.rs` (AGPL) | **`filmcraft-captions` crate already parses SRT/VTT/TTML/SCC/MCC/STL** — app-side import is new code | none | low | Rust unit (parse→captions), UI test | ✅ working (implemented independently, FC code) |
 | Caption export (SRT sidecar) | `subtitles.rs` write path | `filmcraft-captions` writers exist; app-side export is new | none | low | Rust unit round-trip | ✅ working (implemented independently, FC code) |
-| Cinematic caption presets | caption templates | `CaptionStyle` (font, size, color, background, outline, anchor, margin, line spacing) | none — presets are data | low | unit (style mapping) | ✅ working (implemented independently, FC code) |
+| Cinematic caption presets | caption templates | `CaptionStyle` (font, size, color, background, outline, anchor, margin, line spacing) | none — presets are data | low | unit (style mapping) | ✅ working — 12 presets incl. 6 luxury looks |
+| Full caption look controls (font, colours, outline, spacing, margin) | CapCut text style panel | `CaptionLook` + captions panel sliders/swatches/font chips | none | low | Rust round-trip test | ✅ working |
 | Word-by-word / karaoke highlighting | `subtitles.rs` karaoke | engine transcript model has word timings (`SeqWord`) but captions render as blocks | render changes | high | render test | 🟡 partially working (see CHANGELOG) |
 | Auto Lyrics as a separate workflow | `speech.rs` lyrics parts | Whisper pipeline exists; lyrics need a distinct flow | UI + flow | medium | UI test | ⏸ deferred (Phase 3) |
 | Arabic shaping, RTL, punctuation, mixed AR/EN subtitles | CapCraft ships NotoSansArabicUI | `crates/text` layout (harfbuzz-class shaping in `layout/`) — verify Arabic shaping + bidi | none (already in engine) | low | Rust shaping test, RTL layout test | ✅ working (verified by test) |
@@ -41,7 +43,9 @@ policy; they can also be fetched from Google Fonts directly (same files, cleaner
 | Filters (31) + intensity | `concat-effects` | `presets.rs` looks + Lumetri | none | — | existing | ✅ working (baseline) |
 | Extra cinematic looks | `concat-effects` looks (AGPL) | new looks describable as Lumetri deltas | none if written fresh | low | unit (recipe↔recognise round trip) | ✅ working (new looks written fresh, FC code) |
 | Effects (motion/light/distort/retro…) | `concat-effects` | engine effects + `presets.rs` | none | — | existing | ✅ working (baseline) |
-| Transitions (50) with animated tiles | CapCraft has more (film burn, cube…) | `presets.rs` transitions | engine transitions | medium | existing per-transition tests | ✅ working (baseline) |
+| Transitions (67) with animated tiles | CapCraft has more (film burn, cube…) | `presets.rs` transitions (+16 new: cube spin, whip pan, clock wipe, checkerboard…) | engine transitions | medium | round-trip test covers every preset | ✅ working |
+| Watermark (text or image, corner, opacity) | CapCut watermark | `watermark.rs` + WatermarkPanel.kt | none — built on real timeline clips | medium | 3 Rust watermark tests | ✅ working (new, independent code) |
+| Effects download API/service | CapCut asset servers | none found | needs a key-free open API compatible with local-first/no-account | — | — | ⏸ deferred (no suitable open API found; more built-in presets shipped instead) |
 | Stickers / labels / shapes | `concat-text` figures, stickers | text clips can carry glyphs; no sticker shelf | new UI + assets | medium | UI test | ⏸ deferred (Phase 3) |
 | Drawing / doodle workflow | `concat-host/brush.rs` | none | new | high | — | ⏸ deferred |
 
@@ -82,7 +86,7 @@ policy; they can also be fetched from Google Fonts directly (same files, cleaner
 
 ## Summary counts (current)
 
-* ✅ Working: baseline engine + editing + captions (incl. new SRT import/export, caption presets) + rebrand
+* ✅ Working: baseline engine + editing + captions (SRT import/export, 12 presets, full look controls, 20 bundled font faces) + watermark tool + 67 transitions + font downloads + rebrand
 * 🟡 Partially working: karaoke highlighting (timings available, per-word render deferred)
-* ⏸ Deferred: Phase 3 list above (documented, not started)
-* ⛔ License-blocked: CapCraft code/font/asset copies (awaiting Option A/B decision)
+* ⏸ Deferred: Phase 3 list above; effects download API (none found); Auto Lyrics; stickers/drawing; GIF export
+* ⛔ License-blocked: CapCraft code/asset copies (awaiting Option A/B decision)

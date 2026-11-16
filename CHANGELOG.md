@@ -3,6 +3,50 @@
 All notable changes to VantaCut Studio. The project follows the versioning of its FilmCraft base
 (`gradle.properties`: `filmcraft.version`, `filmcraft.versionCode`).
 
+## Unreleased — watermarks, luxury captions, font downloads, more transitions
+
+### Captions (the headline feature)
+
+* `CaptionLook` grew real typography controls: **font family**, fill colour (ARGB), background
+  colour, outline width + outline colour, line spacing and margin — all applied to the caption
+  track exactly as asked, each in its own undo step, and all round-trip through the project file.
+* The captions panel gained colour swatches, an outline slider (0–12 px), a line-spacing slider
+  (1.0–2.0) and font chips listing every font the engine knows.
+* Six new luxury caption presets (Neon, Cinema, Impact, Gold, Typewriter, Reel) — **12 presets**
+  in total, each mapping onto the full look.
+* **16 new bundled fonts** (all SIL OFL 1.1, with licence files and attribution): Amiri
+  Regular/Bold, Tajawal Regular/Bold, Noto Kufi Arabic, Montserrat, Poppins Regular/Bold, Bebas
+  Neue, Oswald, Playfair Display, Rubik, Dancing Script, Anton, Space Mono Regular/Bold — Arabic
+  display (Kufi), Latin display, script and mono faces for real title work.
+* **Font downloads**: a Fonts screen (Settings › Fonts) lists 52 Google-Fonts families with live
+  previews, downloads them from google/fonts over HTTPS into app storage (resumable, magic-number
+  checked), and registers them with the text engine for the whole app, captions included.
+
+### Watermark
+
+* New watermark tool: put **your own text or picture** over the whole video, pinned to any corner,
+  with adjustable opacity — built on the real timeline (text clip or picture clip on an overlay
+  lane with a motion effect), not a fake overlay. Rename to find it again, remove in one tap.
+* New Watermark panel in the editor and a stamp toolbar entry.
+
+### Transitions
+
+* **16 new transitions** (51 → 67): additive dissolve, film dissolve, slide left/up, roll,
+  stretch, whip pan, cube spin, flip over, clock wipe, checkerboard, earthquake, flicker, TV
+  power, glass. Every preset round-trips through the engine and the project file.
+
+### Engine (Rust)
+
+* New `watermark` module with tests; `MobileSession` gained `watermark`, `setTextWatermark`,
+  `setImageWatermark`, `removeWatermark` and `addFontBytes` (runtime font registration).
+* 48 unit tests in the app crate (was 44), 47 in `filmcraft-text`.
+
+### Deferred
+
+* Downloading effects from a remote API/service: no key-free open API was found that fits the
+  local-first, no-account policy; deferred (more built-in presets shipped instead).
+* Everything else listed in [FEATURE_MATRIX.md](FEATURE_MATRIX.md).
+
 ## 0.0.2-beta (versionCode 201) — VantaCut Studio, first branded build
 
 ### Identity
