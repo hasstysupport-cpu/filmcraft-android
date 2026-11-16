@@ -1,17 +1,12 @@
 <p align="center">
-  <img src="assets/app-icon/filmcraft-1024.png" alt="FilmCraft's app icon" width="128">
+  <img src="apps/filmcraft-android/android/brand/vantacut-512.png" alt="VantaCut Studio's app icon" width="128">
 </p>
 
-<h1 align="center">FilmCraft for Android</h1>
+<h1 align="center">VantaCut Studio</h1>
 
 <p align="center">
-  <b>FilmCraft-android is an open-source reimplementation of the Adobe Premiere Android app, created using the same Rust engine, <a href="https://github.com/storytold/filmcraft">FilmCraft</a>, as the desktop app, and built with a Kotlin/Jetpack Compose UI framework.</b><br>
-  Many credits to the original maintainers, <a href="https://github.com/storytold">storytold</a>.
-</p>
-
-<p align="center">
-  <a href="https://github.com/artcraft-android/filmcraft-android/releases"><img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt="Get it on GitHub" height="60"></a>
-  <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/artcraft-android/filmcraft-android"><img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="60"></a>
+  <b>A cinematic video-editing studio for Android, built on the open-source <a href="https://github.com/artcraft-android/filmcraft-android">FilmCraft for Android</a> app and the <a href="https://github.com/storytold/filmcraft">FilmCraft</a> Rust engine, with a Kotlin/Jetpack Compose UI.</b><br>
+  Many credits to the FilmCraft and storytold maintainers, whose engine and app this project builds on.
 </p>
 
 <p align="center">
@@ -23,161 +18,122 @@
   <img alt="Status: beta" src="https://img.shields.io/badge/status-beta-lightblue?style=flat">
 </p>
 
-<p align="center">
-  <a href="#editing">Editing</a> ·
-  <a href="#filters-and-transitions">Filters &amp; transitions</a> ·
-  <a href="#text">Text</a> ·
-  <a href="#captions-and-text-to-speech">Captions &amp; speech</a> ·
-  <a href="#export-and-home">Export &amp; Home</a> ·
-  <a href="#sideways">Sideways</a> ·
-  <a href="#planned-features">Planned features</a> ·
-  <a href="#building-instructions">Building</a>
-</p>
+VantaCut Studio is one coherent product: the FilmCraft app and engine, rebranded and extended.
+Everything runs locally on the phone — no account, no cloud, no ads, no analytics. Large AI
+models (speech, voices) are downloaded only when the user activates the feature that needs them.
 
-<br>
+## Identity
 
-<p align="center">
-  <img src="docs/images/editor.png" alt="The editor: a colour-bars test clip under the playhead with the text Made with FilmCraft on an orange band, the transport row, the timeline with lanes for captions and text, three clips on the main track with their sound, and the tools Audio, Text, Captions, Files, Blank and Aspect ratio" width="250">
-  <br>
-  <sub>The editor: the preview, the transport row, a timeline with lanes for captions, text and sound, and the tools.</sub>
-</p>
-
-<br>
+* Deep black and graphite surfaces (`#08090D`, `#151720`, `#20212B`), neon violet (`#8B5CF6`) and
+  deep red (`#F43F5E`) accents, white typography (`#F5F5F7`, `#A6A6B5`).
+* One place for the brand: `apps/filmcraft-android/android/app/src/main/java/studio/vantacut/app/Brand.kt`
+  (names, links, credits) and `ui/Theme.kt` (`Vc`, `VcType`, `VcSize`, the `VantaCutFont` family).
+  The product name is provisional and changes in one file.
+* Type: **Cairo** (SIL OFL 1.1) for Arabic beside **Inter** (SIL OFL 1.1) for Latin, resolved
+  per character so mixed Arabic/English text renders correctly. Arabic is designed for, not just
+  translated: the text engine shapes Arabic (harfrust) and orders it (unicode-bidi), and Cairo is
+  bundled with the engine so it works with no system font.
+* Package identity: `studio.vantacut.app`.
 
 ## Editing
 
-<table align="center">
-<tr>
-<td align="center"><img src="docs/images/clip-tools.png" alt="A clip selected on the main track with its trim handles, and the clip tools: Split, Delete, Retime, Audio, Filters and Effects" width="250"></td>
-<td align="center"><img src="docs/images/speed.png" alt="The Speed panel: a slider from 0.1x to 10x set at 1x, the clip's duration and a reset button" width="250"></td>
-</tr>
-<tr>
-<td align="center"><sub>A clip selected: split, delete, retime, audio, filters, effects and more</sub></td>
-<td align="center"><sub>Speed, from 0.1× to 10×</sub></td>
-</tr>
-</table>
+* Start from your photo library, from files or blank; open videos shared from other apps.
+* Trim, move, reorder, split, delete, duplicate and replace clips; undo and redo; pinch to zoom.
+* Speed from 0.1× to 10× (the sound keeps its pitch), freeze frames, volume, fades, extract audio.
+* Record a voiceover.
+* Multi-track timeline with visible video, audio, text and caption lanes.
 
-<br>
+## Filters, effects and transitions
 
-## Filters and transitions
+* **37 cinematic filters** — including bleach bypass, midnight, golden hour, blockbuster, silk and
+  crimson — previewed on the clip, with an intensity slider.
+* 23 effects, opacity, mirror and flip; move, scale and turn clips on the preview.
+* 50 transitions, intros and outros, apply to all.
 
-<table align="center">
-<tr>
-<td align="center"><img src="docs/images/filters.png" alt="The Filters panel: None, Colorful, Warm (chosen), Cool and Washed out, each a preview of the clip itself, and an Intensity slider" width="250"></td>
-<td align="center"><img src="docs/images/transitions.png" alt="The Transitions panel at a cut: None, Dissolve, Push up, Push down and Push left (chosen), every tile animating, and a Duration slider at 0.4 s" width="250"></td>
-</tr>
-<tr>
-<td align="center"><sub>31 filters, previewed on the clip</sub></td>
-<td align="center"><sub>50 transitions, every tile animated</sub></td>
-</tr>
-</table>
+## Captions and text
 
-<br>
+* Captions made on the phone by a speech model (Whisper, downloaded once when you ask), then
+  edited, styled and burned into the video. The Whisper workflow and its model-download behaviour
+  are unchanged.
+* **Caption import**: SRT, WebVTT, TTML, SCC, MCC and EBU STL files become editable caption clips
+  on the timeline in one undo step, keeping the track's look.
+* **Caption export**: the caption track writes back out as an SRT sidecar.
+* **Six caption looks**: Classic, Clean, Minimal, Bold pop, Broadcast and Violet.
+* Arabic and mixed Arabic/English captions: shaped, wrapped and laid out right-to-left.
+* Text with presets, the phone's fonts, colours and layout.
 
-## Text
+## Export
 
-<p align="center">
-  <img src="docs/images/text-style.png" alt="The Style panel for the text Made with FilmCraft: the Presets, Font, Color and Layout tabs and six preset looks, the orange box chosen" width="250">
-  <br>
-  <sub>Text: presets, the phone's fonts, colours and layout.</sub>
-</p>
+* 720p, 1080p or 4K at 24 to 60 fps, saved to your Movies folder and ready to share.
 
-<br>
-
-## Captions and text to speech
-
-<table align="center">
-<tr>
-<td align="center"><img src="docs/images/captions.png" alt="Captions made on the phone: The quick brown fox jumps over the lazy dog. along the bottom of the frame, and the Captions panel with the spoken language, the speech model (Faster or More accurate), Make captions again, size, position and box" width="250"></td>
-<td align="center"><img src="docs/images/speech.png" alt="The Text to speech panel: Welcome to my first FilmCraft edit., the voices Basic Female, Basic Male and Natural voices, Pace and Pitch sliders, Listen and Add" width="250"></td>
-</tr>
-<tr>
-<td align="center"><sub>Captions, made on the phone</sub></td>
-<td align="center"><sub>Text to speech, with built-in and natural voices</sub></td>
-</tr>
-</table>
-
-<br>
-
-## Export and Home
-
-<table align="center">
-<tr>
-<td align="center"><img src="docs/images/export.png" alt="The Export screen: the first frame of the video, Export settings and Export video" width="250"></td>
-<td align="center"><img src="docs/images/home.png" alt="Home: From your photo library, New from files, New blank project and Extract audio, then Your projects with one project dated Oct 14, 2026, and the add button" width="250"></td>
-</tr>
-<tr>
-<td align="center"><sub>Export at 720p, 1080p or 4K, 24 to 60 fps</sub></td>
-<td align="center"><sub>Home: four ways to start, then your projects</sub></td>
-</tr>
-</table>
-
-<br>
-
-## Sideways
-
-<p align="center">
-  <img src="docs/images/landscape.png" alt="The editor sideways: the transport on the left, the preview with the text Made with FilmCraft, and the timeline and tools on the right" width="500">
-  <br>
-  <sub>Sideways, the preview sits beside the timeline.</sub>
-</p>
-
-<br>
-
-## Planned features
-
-FilmCraft for Android is in beta.
+## Status: what works, what is experimental, what is deferred
 
 | Area | Status |
 |---|---|
-| Projects from the photo library, files or blank; open shared videos; autosave; rename, duplicate, delete | ✅ |
-| The timeline: trim, move, reorder, split, delete, duplicate, replace, undo and redo; pinch to zoom | ✅ |
-| Speed (0.1–10×, the sound keeps its pitch), freeze frame, volume, fades, extract audio, voiceover | ✅ |
-| 31 filters, 23 effects, opacity, mirror and flip; move, scale and turn on the preview | ✅ |
-| 50 transitions, intro and outro, apply to all | ✅ |
-| Text: presets, the phone's fonts, colours and layout | ✅ |
-| Captions made on the phone (Whisper, downloaded once when you ask), edited and burned in | ✅ |
-| Text to speech: two built-in voices and nine natural voices (Kokoro, downloaded once when you ask) | ✅ |
-| 11 aspect ratios, blank clips | ✅ |
-| Export at 720p, 1080p or 4K, 24 to 60 fps, saved to Movies and shared | ✅ |
-| Upright and sideways layouts | ✅ |
-| Stock music, templates | ⬜ |
-| Generative AI, cloud storage, accounts | 🚫 FilmCraft is a local app |
+| Full FilmCraft editing, timeline, projects, speech and export | ✅ working |
+| VantaCut rebrand (theme, icon, fonts, screens, package identity) | ✅ working |
+| Caption import (6 formats), SRT export, six caption looks | ✅ working |
+| Arabic shaping, RTL and wrapping in the text engine (Cairo bundled) | ✅ working |
+| Six new cinematic filter looks | ✅ working |
+| Compose UI tests for the new workflows | 🟡 not yet written (see TESTING.md) |
+| Word-by-word/karaoke caption highlighting, Auto Lyrics | ⏸ deferred (needs word timings) |
+| Word-art, speech bubbles, text animations, stickers, drawing | ⏸ deferred |
+| GIF/still export, sound-effect library | ⏸ deferred |
+| Speed curves, masks, chroma key, tracking, stabilisation, background removal, voice isolation, auto-reframe, collage, advanced colour grading | ⏸ Phase 3, deferred |
 
-<sub>✅ works today · 🚧 in progress · ⬜ not started · 🚫 not planned</sub>
-
-<br>
+See [FEATURE_MATRIX.md](FEATURE_MATRIX.md) for the full per-feature matrix,
+[MIGRATION_PLAN.md](MIGRATION_PLAN.md) for the plan and ground rules,
+[LICENSE_REVIEW.md](LICENSE_REVIEW.md) for the licensing analysis, [CHANGELOG.md](CHANGELOG.md)
+for what changed, and [TESTING.md](TESTING.md) for test results.
 
 ## Building Instructions
-*One Gradle command builds the whole app: it compiles the Rust engine with [cargo-ndk](https://github.com/bbqsrc/cargo-ndk) and generates the Kotlin bindings.*
+
+*One Gradle command builds the whole app: it compiles the Rust engine with
+[cargo-ndk](https://github.com/bbqsrc/cargo-ndk) and generates the Kotlin bindings.*
 
 * Clone this repository
 * Make sure you have at least 4 GB of free disk space
-* enter `apps/filmcraft-android/android` and run `./gradlew assembleRelease`, or open that folder in Android Studio and press Run.
+* enter `apps/filmcraft-android/android` and run `./gradlew assembleDebug`, or open that folder in
+  Android Studio and press Run.
 
-Build time dependencies:
+Verified toolchain (the versions this repository is tested with):
 
-<details>
-  <summary>required tools</summary>
+```
+    JDK 17 or newer (tested: Temurin 17.0.21+9)
+    Android SDK, platform android-37.0 and build-tools 37.0.0
+    Android NDK 29.0.14206865
+    cargo-ndk 4.1.2 (cargo install cargo-ndk --version 4.1.2 --locked)
+    Rust: the release rust-toolchain.toml names (rustup toolchain install)
+```
 
-  ```
-      rustup (it installs the Rust release and Android targets rust-toolchain.toml names)
-      cargo install cargo-ndk --version 4.1.2 --locked
-      Android SDK (API 37) and NDK 29.0.14206865
-      JDK 17 or newer
-  ```
-</details>
+The first APK targets `arm64-v8a`; build it explicitly with:
 
-*Builds are only tested on Windows 11.*
+```
+    ./gradlew assembleDebug -Pfilmcraft.abis=arm64-v8a
+    ./gradlew assembleRelease -Pfilmcraft.abis=arm64-v8a
+```
 
-<br>
+On a memory-constrained machine, keep the Gradle daemon off and cap the build:
+
+```
+    CARGO_BUILD_JOBS=2 GRADLE_OPTS="-Dorg.gradle.jvmargs=-Xmx2048m -Dkotlin.daemon.jvm.options=-Xmx1024m" ./gradlew assembleDebug -Pfilmcraft.abis=arm64-v8a --no-daemon
+```
+
+Rust tests: `cargo test --workspace` from the repository root.
+
+*Builds are tested on Linux (x86_64); the upstream project tested Windows 11.*
 
 ## License
 
-[MIT](LICENSE-MIT) OR [Apache-2.0](LICENSE-APACHE), at your option. FilmCraft for Android is not affiliated with Adobe;
-Premiere is a trademark of Adobe Inc.
+[MIT](LICENSE-MIT) OR [Apache-2.0](LICENSE-APACHE), at your option, like FilmCraft for Android.
 
-<br>
+Bundled typefaces (SIL OFL 1.1): Inter and Cairo — see `assets/fonts/*.attribution`,
+`assets/fonts/OFL-Cairo.txt` and `ATTRIBUTION.md`.
+
+If code from CapCraft (AGPL-3.0-or-later) is ever adopted, the combined work's obligations change;
+[LICENSE_REVIEW.md](LICENSE_REVIEW.md) tracks that decision. No CapCraft code is included today.
+
+VantaCut Studio is not affiliated with Adobe; Premiere is a trademark of Adobe Inc.
 
 ## Misc info for myself
 
