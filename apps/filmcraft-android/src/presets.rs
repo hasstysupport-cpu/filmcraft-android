@@ -659,6 +659,21 @@ const TRANSITIONS: &[Transition] = &[
     Transition { id: "warp_in", name: "Warp in", effect: "liquid_distortion", fixed: &[] },
     Transition { id: "warp_out", name: "Warp out", effect: "wave", fixed: &[] },
     Transition { id: "cross_zoom", name: "Cross zoom", effect: "motion_camera", fixed: &[] },
+    Transition { id: "additive_dissolve", name: "Additive", effect: "additive_dissolve", fixed: &[] },
+    Transition { id: "film_dissolve", name: "Film dissolve", effect: "film_dissolve", fixed: &[] },
+    Transition { id: "slide_left", name: "Slide left", effect: "slide", fixed: &[("direction", C(E))] },
+    Transition { id: "slide_up", name: "Slide up", effect: "slide", fixed: &[("direction", C(S))] },
+    Transition { id: "roll_left", name: "Roll", effect: "roll", fixed: &[("direction", C(E))] },
+    Transition { id: "stretch_left", name: "Stretch", effect: "stretch", fixed: &[("direction", C(E))] },
+    Transition { id: "whip_pan", name: "Whip pan", effect: "whip", fixed: &[("direction", C(E))] },
+    Transition { id: "cube_spin", name: "Cube spin", effect: "cube_spin", fixed: &[] },
+    Transition { id: "flip_over", name: "Flip over", effect: "flip_over", fixed: &[] },
+    Transition { id: "clock_wipe", name: "Clock wipe", effect: "clock_wipe", fixed: &[] },
+    Transition { id: "checkerboard", name: "Checkerboard", effect: "checker_wipe", fixed: &[] },
+    Transition { id: "earthquake", name: "Earthquake", effect: "earthquake", fixed: &[] },
+    Transition { id: "flicker", name: "Flicker", effect: "flicker", fixed: &[] },
+    Transition { id: "tv_power", name: "TV power", effect: "tv_power", fixed: &[] },
+    Transition { id: "glass", name: "Glass", effect: "glass", fixed: &[] },
 ];
 
 /// The transition picker's list.

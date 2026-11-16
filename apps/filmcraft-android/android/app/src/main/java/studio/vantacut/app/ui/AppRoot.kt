@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import studio.vantacut.app.ui.editor.EditorScreen
 import studio.vantacut.app.ui.export.ExportScreen
 import studio.vantacut.app.ui.home.AboutScreen
+import studio.vantacut.app.ui.home.FontsScreen
 import studio.vantacut.app.ui.home.HomeScreen
 import studio.vantacut.app.ui.home.LicencesScreen
 import studio.vantacut.app.ui.home.SettingsScreen
@@ -44,6 +45,7 @@ fun AppRoot(vm: AppViewModel) {
             Screen.Settings -> SettingsScreen(vm)
             Screen.About -> AboutScreen(vm)
             Screen.Licences -> LicencesScreen(vm)
+            Screen.Fonts -> FontsScreen(vm)
         }
         SnackbarHost(snackbars, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 96.dp)) { data ->
             Snackbar(shape = RoundedCornerShape(8.dp), containerColor = Vc.Raised, contentColor = Vc.Title) {

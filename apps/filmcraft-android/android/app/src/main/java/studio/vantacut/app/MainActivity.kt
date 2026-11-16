@@ -92,6 +92,7 @@ class MainActivity : ComponentActivity() {
                 PickKind.FilesAudio -> openDocuments.launch(arrayOf("audio/*"))
                 PickKind.CaptionsFile -> openOneDocument.launch(arrayOf("*/*"))
                 PickKind.CaptionsSave -> createDocument.launch("captions.srt")
+                PickKind.WatermarkImage -> openOneDocument.launch(arrayOf("image/*"))
             }
         }
     }

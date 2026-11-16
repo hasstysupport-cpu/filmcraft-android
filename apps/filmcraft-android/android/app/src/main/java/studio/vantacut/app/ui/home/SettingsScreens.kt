@@ -62,7 +62,7 @@ import kotlinx.coroutines.withContext
 private val SOURCE_URL = Brand.SOURCE_URL
 
 @Composable
-private fun Page(title: String, onClose: () -> Unit, tag: String, content: @Composable () -> Unit) {
+fun Page(title: String, onClose: () -> Unit, tag: String, content: @Composable () -> Unit) {
     BackHandler(onBack = onClose)
     Column(Modifier.fillMaxSize().background(Vc.Black).statusBarsPadding().navigationBarsPadding().testTag(tag)) {
         Row(Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -110,6 +110,7 @@ fun SettingsScreen(vm: AppViewModel) {
     }
     Page("Settings", { vm.back() }, "screen_settings") {
         Row48("About ${Brand.SHORT_NAME}") { vm.show(Screen.About) }
+        Row48("Fonts") { vm.show(Screen.Fonts) }
         if (stored.isNotEmpty()) {
             Spacer(Modifier.height(24.dp))
             Text("Downloaded for captions and speech", style = VcType.Label, color = Vc.Secondary, modifier = Modifier.padding(horizontal = 12.dp))

@@ -59,6 +59,8 @@ sealed interface Panel {
     data object Voiceover : Panel
     /** Captions: make them, and their look. */
     data object Captions : Panel
+    /** Watermark: the user's name or logo over the whole video. */
+    data object Watermark : Panel
     /** Text to speech: new speech ([clip] empty) or saying a speech clip again. */
     data class Speech(val clip: ULong?) : Panel
 }
@@ -83,7 +85,7 @@ interface EditorHost {
     fun savePicked(uri: Uri, staged: File)
 }
 
-enum class PickKind { PhotosAndVideos, FilesVisual, FilesAudio, ReplaceVisual, ExtractAudioVideo, CaptionsFile, CaptionsSave }
+enum class PickKind { PhotosAndVideos, FilesVisual, FilesAudio, ReplaceVisual, ExtractAudioVideo, CaptionsFile, CaptionsSave, WatermarkImage }
 
 /**
  * The open project in the editor: the timeline as the engine last reported it, the playhead,
@@ -662,6 +664,32 @@ class EditorController(
             }
         }
     }
+
+    /** The watermark over the sequence, if there is one. */
+    suspend fun watermark(): studio.vantacut.app.core.WatermarkInfo? = runCatching { engine.command { watermark() } }.getOrNull()
+
+    /** Set the text watermark; one undo step. */
+    fun setTextWatermark(text: String, corner: studio.vantacut.app.core.WatermarkCorner, opacity: Double) = edit {
+        setTextWatermark(text, corner, opacity)
+    }
+
+    /** Pick a picture, then set it as the watermark; one undo step. */
+    fun pickWatermarkImage(corner: studio.vantacut.app.core.WatermarkCorner, opacity: Double) {
+        host.pick(PickKind.WatermarkImage) { uris ->
+            val uri = uris.firstOrNull() ?: return@pick
+            scope.launch {
+                try {
+                    val staged = host.stageFile(uri, "watermark")
+                    edit { setImageWatermark(staged, corner, opacity) }
+                } catch (e: Exception) {
+                    host.tell(e.userMessage)
+                }
+            }
+        }
+    }
+
+    /** Remove the watermark; one undo step. */
+    fun removeWatermark() = edit { removeWatermark() }
 
     /** Write the sequence's captions to a file the user picked (SRT). */
     fun exportCaptions() {

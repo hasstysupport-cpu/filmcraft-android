@@ -6,6 +6,7 @@ import android.media.AudioFormat
 import android.media.AudioTrack
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -180,6 +182,63 @@ fun CaptionsPanel(ed: EditorController, close: () -> Unit, modifier: Modifier = 
                     ed.setCaptionLook(v, merge = false)
                 }, tag = "captions_box_chip")
             }
+            // the words' colour
+            Text("Colour", style = VcType.Label, color = Vc.Secondary, modifier = pad)
+            Spacer(Modifier.height(8.dp))
+            Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = VcSize.PanelPadding), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                for (argb in CAPTION_SWATCHES) {
+                    Box(
+                        Modifier.size(30.dp).clip(CircleShape).background(Color(argb.toLong())).border(if (l.color == argb) 2.dp else 1.dp, if (l.color == argb) Vc.Title else Vc.Divider, CircleShape).clickable {
+                            val v = l.copy(color = argb)
+                            look = v
+                            ed.setCaptionLook(v, merge = false)
+                        },
+                    )
+                }
+            }
+            // the edge, when there is no box (or over it)
+            SliderRow("Edge", if (l.outline <= 0.0) "None" else "${l.outline.roundToInt()} px") {
+                VcSlider(
+                    fraction = (l.outline / 12.0).toFloat(),
+                    onChange = { f ->
+                        val v = l.copy(outline = (Math.round(f * 12.0 * 2) / 2.0).coerceIn(0.0, 12.0))
+                        look = v
+                        ed.setCaptionLook(v, merge = true)
+                    },
+                    description = "Caption outline width",
+                    tag = "captions_outline_slider",
+                )
+            }
+            SliderRow("Line spacing", "${((l.lineSpacing * 100).roundToInt()) / 100.0}") {
+                VcSlider(
+                    fraction = ((l.lineSpacing - 1.0) / 1.0).toFloat(),
+                    onChange = { f ->
+                        val v = l.copy(lineSpacing = Math.round((1.0 + f) * 20) / 20.0)
+                        look = v
+                        ed.setCaptionLook(v, merge = true)
+                    },
+                    snapTo = 0.25f,
+                    description = "Caption line spacing",
+                    tag = "captions_spacing_slider",
+                )
+            }
+            // the family, drawn in itself where the phone has it
+            var fonts by remember { mutableStateOf<List<String>>(emptyList()) }
+            LaunchedEffect(has) { fonts = runCatching { ed.engine.command { fonts() } }.getOrDefault(listOf("Cairo")) }
+            if (fonts.isNotEmpty()) {
+                Spacer(Modifier.height(8.dp))
+                Text("Font", style = VcType.Label, color = Vc.Secondary, modifier = pad)
+                Spacer(Modifier.height(8.dp))
+                ChipRow {
+                    for (f in fonts.take(24)) {
+                        SelectChip(f, l.font.equals(f, ignoreCase = true), {
+                            val v = l.copy(font = f)
+                            look = v
+                            ed.setCaptionLook(v, merge = false)
+                        }, tag = "captions_font_${f.replace(' ', '_')}")
+                    }
+                }
+            }
             if (looks.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
                 Text("Looks", style = VcType.Label, color = Vc.Secondary, modifier = Modifier.padding(horizontal = VcSize.PanelPadding))
@@ -204,6 +263,9 @@ fun CaptionsPanel(ed: EditorController, close: () -> Unit, modifier: Modifier = 
         )
     }
 }
+
+/** The colours offered for the caption words. */
+private val CAPTION_SWATCHES = uintArrayOf(0xFFFFFFFFu, 0xFFF5F5F7u, 0xFF8B5CF6u, 0xFFF43F5Eu, 0xFFFBBF24u, 0xFF34C759u, 0xFF32D7F0u, 0xFF000000u)
 
 /** A row of chips that scrolls sideways under the panel's edges rather than stopping at its padding. */
 @Composable

@@ -7,6 +7,7 @@ import studio.vantacut.app.core.MobileSession
 import studio.vantacut.app.core.initLogging
 import studio.vantacut.app.core.trimMemory
 import studio.vantacut.app.engine.Engine
+import studio.vantacut.app.engine.FontDownloads
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -31,6 +32,12 @@ class VantaCutApplication : Application() {
                 initLogging()
                 val session = MobileSession()
                 session.start(data.absolutePath)
+                // the fonts downloaded earlier join the engine's font database again
+                var fonts = 0
+                for (f in FontDownloads.files(this@VantaCutApplication)) {
+                    runCatching { fonts += session.addFontBytes(f.readBytes()).toInt() }
+                }
+                if (fonts > 0) android.util.Log.i("VantaCut", "$fonts downloaded font faces")
                 engineLoaded = true
                 Engine(session)
             }

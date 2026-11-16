@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** The screens. */
-enum class Screen { Home, Editor, Export, Settings, About, Licences }
+enum class Screen { Home, Editor, Export, Settings, About, Licences, Fonts }
 
 /** How a new project starts. */
 enum class NewProject { PhotoLibrary, Files, Blank, ExtractAudio }
