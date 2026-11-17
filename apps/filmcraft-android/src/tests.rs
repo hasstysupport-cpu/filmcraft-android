@@ -233,6 +233,19 @@ fn speed_changes_the_length_and_ripples_the_main_track() {
 }
 
 #[test]
+fn reverse_plays_the_clip_backwards_and_keeps_its_length_and_speed() {
+    let (m, _d, ids) = two_clips();
+    let before = main_clips(&m)[0].duration;
+    m.set_reverse(ids[0], true).unwrap();
+    let main = main_clips(&m);
+    assert!(main[0].reversed, "the clip reads back as reversed");
+    assert_eq!((main[0].duration, main[0].speed), (before, 1.0));
+    assert_eq!(main[1].start, 2 * SEC, "the clip after it stays put");
+    m.set_reverse(ids[0], false).unwrap();
+    assert!(!main_clips(&m)[0].reversed, "it plays forwards again");
+}
+
+#[test]
 fn replace_keeps_place_and_length_and_refuses_a_shorter_video() {
     let (m, d, ids) = two_clips();
     m.forget_history();

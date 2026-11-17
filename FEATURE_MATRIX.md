@@ -75,7 +75,7 @@ policy; they can also be fetched from Google Fonts directly (same files, cleaner
 | --- | --- | --- | --- |
 | Speed curves / keyframes | `slowmo.rs`, engine | FilmCraft has constant speed (0.1–10×); curves need engine work | ⏸ deferred |
 | Freeze frame | — | FilmCraft already has `freeze` | ✅ working (baseline) |
-| Reverse | `pauses.rs`/engine | engine item flag `reverse` exists | ✅ working (baseline, engine-level) |
+| Reverse | `pauses.rs`/engine | engine item flag `reverse`; mobile `set_reverse` binding + toolbar tool | ✅ working (bound in the editor toolbar) |
 | Chroma key / masks | `cutout.rs` | needs engine effect + possibly model | ⏸ deferred |
 | Motion tracking | `tracking.rs` (514 lines, AGPL) | heavy; needs own implementation + model | ⏸ deferred |
 | Stabilization | `stabilize.rs` + FFmpeg/vidstab | heavy native deps | ⏸ deferred |
@@ -83,6 +83,12 @@ policy; they can also be fetched from Google Fonts directly (same files, cleaner
 | Auto-reframe | `reframe.rs` | needs tracking first | ⏸ deferred |
 | Collage / cover maker | `cards.rs`, `templates.rs` | UI-heavy | ⏸ deferred |
 | Advanced color grading | Lumetri already deep | FilmCraft's Lumetri covers most | 🟡 (existing controls; no new scopes UI) |
+
+## Playback
+
+| Feature | Notes | Status |
+|---|---|---|
+| Smooth preview playback | frame-gated draws, engine cancel tokens for stale frames, stale results dropped, steadier audio blocks | ✅ working (improved; on-device feel unverified — no device in the sandbox) |
 
 ## Summary counts (current)
 

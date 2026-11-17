@@ -569,6 +569,10 @@ impl MobileSession {
         self.main_edit(|s| edits::set_speed(s, clip, speed))
     }
 
+    pub fn set_reverse(&self, clip: u64, on: bool) -> Result<(), MobileError> {
+        self.main_edit(|s| edits::set_reverse(s, clip, on))
+    }
+
     pub fn freeze(&self, clip: u64) -> Result<u64, MobileError> {
         self.main_edit(|s| edits::freeze(s, clip))
     }

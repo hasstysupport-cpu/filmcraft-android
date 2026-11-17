@@ -5,6 +5,25 @@ All notable changes to VantaCut Studio. The project follows the versioning of it
 
 ## Unreleased — watermarks, luxury captions, font downloads, more transitions
 
+### Smoother preview playback
+
+* Playback no longer draws the same frame twice on high-refresh screens (the display's clock can
+  beat the timeline's rate), abandons a picture the playhead has already left (the engine's cancel
+  token is now used), drops frames that finish after the playhead moved on (no backward steps),
+  and mixes sound in steadier blocks with a half-second buffer. Draft frames draw a little smaller
+  while playing, so weak phones keep up.
+
+### A fuller editor toolbar
+
+* The main tool bar gains **Transition** (opens the transition picker for the cut under the
+  playhead), **Filters** and **Effects** (for the selected clip).
+* A selected video clip gains **Reverse** (plays backwards, engine-backed, one tap to turn it
+  back) and **Rotate** (a quarter turn clockwise).
+* Home was redesigned: the top bar shows the app name and free storage, quick actions sit under
+  it, projects appear as **Recent Edits** cards (poster, name, length, date, Export and Edit
+  buttons, rename/duplicate/delete in the ⋮ menu), and a bottom navigation bar (Home, Projects,
+  +, Fonts, Settings) with a new all-projects screen.
+
 ### Captions (the headline feature)
 
 * `CaptionLook` grew real typography controls: **font family**, fill colour (ARGB), background

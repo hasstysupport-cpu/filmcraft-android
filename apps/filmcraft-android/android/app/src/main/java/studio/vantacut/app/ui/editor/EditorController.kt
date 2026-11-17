@@ -17,6 +17,7 @@ import studio.vantacut.app.core.CaptionPreset
 import studio.vantacut.app.core.CaptionStatus
 import studio.vantacut.app.core.ClipInfo
 import studio.vantacut.app.core.ClipKind
+import studio.vantacut.app.core.CancelToken
 import studio.vantacut.app.core.LaneKind
 import studio.vantacut.app.core.MobileSession
 import studio.vantacut.app.core.Renderer
@@ -145,11 +146,15 @@ class EditorController(
             field = v.coerceIn(160, 1280)
         }
 
-    private data class FrameRequest(val time: Long, val draft: Boolean, val seq: Long)
+    private data class FrameRequest(val time: Long, val draft: Boolean, val seq: Long, val cancel: CancelToken?)
     private val frameRequests = MutableStateFlow<FrameRequest?>(null)
     private var requestSeq = 0L
     private val bitmaps = arrayOfNulls<Bitmap>(2)
     private var nextBitmap = 0
+    /** The picture being drawn now; cancelled when a newer wish takes its place. */
+    private var drawing: CancelToken? = null
+    /** The last frame index a picture was asked for (a display can beat the timeline's rate). */
+    private var lastFrameIndex = Long.MIN_VALUE
 
     init {
         scope.launch { renderFrames() }
@@ -376,7 +381,12 @@ class EditorController(
                 withFrameNanos { }
                 val t = player.position().coerceAtMost(end)
                 playhead = t
-                requestFrame(t, draft = true)
+                // the display's clock beats the timeline's rate: draw each frame once, not twice
+                val f = TimelineMath.frames(t, rateNum, rateDen)
+                if (f != lastFrameIndex) {
+                    lastFrameIndex = f
+                    requestFrame(t, draft = true)
+                }
                 if (t >= end) break
             }
             if (playing) {
@@ -401,6 +411,7 @@ class EditorController(
         playJob?.cancel()
         playJob = null
         player.stop()
+        lastFrameIndex = Long.MIN_VALUE
         val t = playhead
         scope.launch {
             engine.command { setPlayhead(t) }
@@ -409,14 +420,21 @@ class EditorController(
     }
 
     private fun requestFrame(t: Long, draft: Boolean) {
-        frameRequests.value = FrameRequest(t, draft, ++requestSeq)
+        // a slower frame still being drawn is abandoned at once: the playhead moved on
+        drawing?.cancel()
+        val token = CancelToken()
+        drawing = token
+        frameRequests.value = FrameRequest(t, draft, ++requestSeq, token)
     }
 
     private suspend fun renderFrames() {
         frameRequests.filterNotNull().collect { req ->
             val r = renderer ?: return@collect
-            val side = if (req.draft && playing) (previewSide * 3 / 4).coerceAtLeast(160) else previewSide
-            val frame = withContext(engine.preview) { runCatching { r.frame(req.time, side.toUInt(), req.draft, null) }.getOrNull() } ?: return@collect
+            val side = if (req.draft && playing) (previewSide * 5 / 8).coerceAtLeast(160) else previewSide
+            val frame = withContext(engine.preview) { runCatching { r.frame(req.time, side.toUInt(), req.draft, req.cancel) }.getOrNull() } ?: return@collect
+            // a frame the playhead has already left is dropped, never shown (no backward steps)
+            val isNewest = frameRequests.value?.seq == req.seq
+            if (!isNewest && !playing) return@collect
             val bmp = frame.intoBitmap(bitmaps[nextBitmap]) ?: return@collect
             bitmaps[nextBitmap] = bmp
             nextBitmap = 1 - nextBitmap
@@ -500,7 +518,27 @@ class EditorController(
     fun extractAudio() = withSelected { c -> submenu = Submenu.None; edit { extractAudio(c.id) } }
     fun toggleMirror() = withSelected { c -> edit { setFlip(c.id, true, !c.mirrored) } }
     fun toggleFlip() = withSelected { c -> edit { setFlip(c.id, false, !c.flipped) } }
+    fun toggleReverse() = withSelected { c -> edit { setReverse(c.id, !c.reversed) } }
+
+    /** Turn the selected clip a quarter turn clockwise (its placement's rotation + 90°). */
+    fun rotate90() = withSelected { c ->
+        scope.launch {
+            val p = placementOf(c.id) ?: return@launch
+            setPlacement(c.id, p.copy(rotation = p.rotation + 90.0), merge = false)
+        }
+    }
     fun addBlank() = edit { addBlank() }
+
+    /** Open the transitions panel for the cut the playhead sits on (the clip before and after it). */
+    fun openTransitionAtPlayhead() {
+        val clips = mainClips
+        val i = clips.indexOfFirst { playhead > it.start && playhead < it.start + it.duration }
+        if (i <= 0) {
+            host.tell("Move the playhead between two clips to add a transition.")
+            return
+        }
+        panel = Panel.Transitions(clips[i - 1].id, clips[i].id)
+    }
 
     fun setSpeed(speed: Double, done: Boolean) = withSelected { c ->
         if (done) edit { setSpeed(c.id, speed) }

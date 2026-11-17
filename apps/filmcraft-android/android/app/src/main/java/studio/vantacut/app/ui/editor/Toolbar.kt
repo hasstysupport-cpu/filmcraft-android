@@ -109,6 +109,9 @@ private fun addTools(ed: EditorController) = listOf(
     Tool("editor_tool_audio", "Audio", LucideIcons.Music.glyph()) { ed.submenu = Submenu.AddAudio },
     Tool("editor_tool_text", "Text", LucideIcons.Type.glyph()) { ed.panel = Panel.TextInput(null) },
     Tool("editor_tool_captions", "Captions", LucideIcons.Captions.glyph(), enabled = ed.duration > 0) { ed.panel = Panel.Captions },
+    Tool("editor_tool_transition", "Transition", LucideIcons.Blend.glyph(), enabled = ed.duration > 0) { ed.openTransitionAtPlayhead() },
+    Tool("editor_tool_filters", "Filters", LucideIcons.SwatchBook.glyph(), enabled = ed.selectedClip != null) { ed.panel = Panel.Filters },
+    Tool("editor_tool_effects", "Effects", LucideIcons.WandSparkles.glyph(), enabled = ed.selectedClip != null) { ed.panel = Panel.Effects },
     Tool("editor_tool_watermark", "Watermark", LucideIcons.Stamp.glyph(), enabled = ed.duration > 0) { ed.panel = Panel.Watermark },
     Tool("editor_tool_files", "Files", LucideIcons.File.glyph()) { ed.submenu = Submenu.Files },
     Tool("editor_tool_blank", "Blank", LucideIcons.RectangleHorizontal.glyph()) { ed.addBlank() },
@@ -146,6 +149,7 @@ private fun clipTools(ed: EditorController, c: ClipInfo): List<Tool> {
         // one-tap toggles with no on/off look: the preview shows which way the picture faces
         Tool("editor_tool_flip_h", "Mirror", LucideIcons.FlipVertical2.glyph()) { ed.toggleMirror() },
         Tool("editor_tool_flip_v", "Flip", LucideIcons.FlipHorizontal2.glyph()) { ed.toggleFlip() },
+        Tool("editor_tool_rotate", "Rotate", LucideIcons.RotateCw.glyph()) { ed.rotate90() },
     )
     return when (c.kind) {
         ClipKind.MISSING -> listOf(delete, replace)
@@ -166,6 +170,7 @@ private fun clipTools(ed: EditorController, c: ClipInfo): List<Tool> {
         ClipKind.VIDEO -> listOfNotNull(
             split, delete,
             Tool("editor_tool_retime_submenu", "Retime", LucideIcons.Timer.glyph()) { ed.submenu = Submenu.Retime },
+            Tool("editor_tool_reverse", "Reverse", LucideIcons.Rewind.glyph(), active = c.reversed) { ed.toggleReverse() },
             if (c.hasAudio) Tool("editor_tool_audio_submenu", "Audio", (if (c.muted) LucideIcons.VolumeX else LucideIcons.Volume2).glyph()) { ed.submenu = Submenu.ClipAudio } else null,
         ) + picture + listOf(duplicate, replace)
     }

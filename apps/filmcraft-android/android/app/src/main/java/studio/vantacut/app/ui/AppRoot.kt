@@ -25,6 +25,7 @@ import studio.vantacut.app.ui.home.AboutScreen
 import studio.vantacut.app.ui.home.FontsScreen
 import studio.vantacut.app.ui.home.HomeScreen
 import studio.vantacut.app.ui.home.LicencesScreen
+import studio.vantacut.app.ui.home.ProjectsScreen
 import studio.vantacut.app.ui.home.SettingsScreen
 
 /** The app: the current screen, and messages along the bottom. */
@@ -40,6 +41,7 @@ fun AppRoot(vm: AppViewModel) {
         val ed = vm.editor
         when (vm.screen) {
             Screen.Home -> HomeScreen(vm)
+            Screen.Projects -> ProjectsScreen(vm)
             Screen.Editor -> if (ed != null) EditorScreen(ed) else HomeScreen(vm)
             Screen.Export -> ExportScreen(vm)
             Screen.Settings -> SettingsScreen(vm)

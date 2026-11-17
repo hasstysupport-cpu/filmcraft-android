@@ -476,6 +476,19 @@ pub(crate) fn set_speed(s: &mut Session, id: u64, speed: f64) -> Result<(), Mobi
     Ok(())
 }
 
+/// Play a clip backwards (or forwards again), keeping its speed and sound's pitch.
+pub(crate) fn set_reverse(s: &mut Session, id: u64, on: bool) -> Result<(), MobileError> {
+    let (kind, track, c) = locate(s, id)?;
+    let speed = c.speed.abs().clamp(MIN_SPEED, MAX_SPEED);
+    let params = json!({"clips": [c.id.0], "speed": speed * 100.0, "reverse": on, "ripple": is_main(kind, track), "maintainPitch": true});
+    if is_main(kind, track) {
+        s.edit_group("Reverse", |s| ripple_main(s, c.end(), |s| s.execute("clip.speedDuration", params)))?;
+    } else {
+        ex(s, "clip.speedDuration", params)?;
+    }
+    Ok(())
+}
+
 /// Insert a 4-second still of the frame at the playhead into the clip.
 pub(crate) fn freeze(s: &mut Session, id: u64) -> Result<u64, MobileError> {
     let (kind, track, c) = locate(s, id)?;

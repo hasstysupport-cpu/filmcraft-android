@@ -32,7 +32,8 @@ class Player {
         endTick = to
         val bytesPerFrame = 8
         val min = AudioTrack.getMinBufferSize(rate, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_FLOAT)
-        val size = maxOf(min, rate / 4 * bytesPerFrame)
+        // half a second of sound: a slow mix block never reaches the speaker
+        val size = maxOf(min, rate / 2 * bytesPerFrame)
         val t = runCatching {
             AudioTrack.Builder()
                 .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MOVIE).build())
@@ -48,7 +49,8 @@ class Player {
         val ticksPerSample = TPS / rate
         val startSample = from / ticksPerSample
         val endSample = to / ticksPerSample
-        val block = 2048
+        // ~85 ms per mix call at 48 kHz: fewer engine round-trips, steadier sound
+        val block = 4096
         writer = Thread({
             var cursor = startSample
             runCatching { t.play() }

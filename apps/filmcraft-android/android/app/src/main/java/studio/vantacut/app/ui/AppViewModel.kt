@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** The screens. */
-enum class Screen { Home, Editor, Export, Settings, About, Licences, Fonts }
+enum class Screen { Home, Projects, Editor, Export, Settings, About, Licences, Fonts }
 
 /** How a new project starts. */
 enum class NewProject { PhotoLibrary, Files, Blank, ExtractAudio }
@@ -154,8 +154,20 @@ class AppViewModel(app: Application) : AndroidViewModel(app), EditorHost {
             Screen.About -> Screen.Settings
             Screen.Licences -> Screen.About
             Screen.Settings -> Screen.Home
+            Screen.Projects -> Screen.Home
             Screen.Export -> if (editor != null) Screen.Editor else Screen.Home
             else -> Screen.Home
+        }
+    }
+
+    /** Storage left on the phone, for Home ("12.5 GB free"). */
+    fun storageFree(): String {
+        val b = runCatching { android.os.StatFs(getApplication<Application>().filesDir.path).availableBytes }.getOrDefault(0L)
+        val gb = b / 1_000_000_000.0
+        return when {
+            gb >= 1.0 -> "%.0f GB free".format(gb)
+            gb > 0.0 -> "%.0f MB free".format(b / 1_000_000.0)
+            else -> ""
         }
     }
 
@@ -231,6 +243,15 @@ class AppViewModel(app: Application) : AndroidViewModel(app), EditorHost {
     fun openProject(p: ProjectEntry) {
         val e = engine ?: return tell(engineProblem ?: "The editor is still starting.")
         viewModelScope.launch { open(e, p, fresh = false) }
+    }
+
+    /** Open a project from Home, then go straight to its export screen. */
+    fun exportProject(p: ProjectEntry) {
+        val e = engine ?: return tell(engineProblem ?: "The editor is still starting.")
+        viewModelScope.launch {
+            open(e, p, fresh = false)
+            if (editor != null) export()
+        }
     }
 
     private suspend fun open(e: Engine, p: ProjectEntry, fresh: Boolean) {

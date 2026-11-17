@@ -60,6 +60,8 @@ pub struct ClipInfo {
     pub media_duration: i64,
     /// Playback speed (1.0 = normal).
     pub speed: f64,
+    /// It plays backwards.
+    pub reversed: bool,
     pub name: String,
     /// A text clip's text, or what a speech clip says.
     pub text: String,
@@ -307,6 +309,7 @@ pub(crate) fn clip_info(s: &Session, seq: &Sequence, f: &Found<'_>) -> ClipInfo 
         source_in: c.source_in.0,
         media_duration,
         speed: c.speed.abs(),
+        reversed: c.reverse,
         voiceover: f.kind == TrackKind::Audio && name.starts_with(crate::edits::VOICEOVER_PREFIX),
         speech: f.kind == TrackKind::Audio && s.project.narrations.contains_key(&c.item),
         name,
