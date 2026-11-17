@@ -12,6 +12,19 @@ All notable changes to VantaCut Studio. The project follows the versioning of it
   token is now used), drops frames that finish after the playhead moved on (no backward steps),
   and mixes sound in steadier blocks with a half-second buffer. Draft frames draw a little smaller
   while playing, so weak phones keep up.
+* Stale frame wishes are dropped before any rendering work starts (the single preview worker used
+  to finish every queued picture, then throw it away — the queue backed up and playback stuttered).
+* While playing, decoders are told which pictures the playhead has already passed (a three-frame
+  catch-up margin): a decoder catching up forward skips them instead of feeding late frames.
+* The draft size now adapts to the device: if drawing cannot keep the timeline's frame rate the
+  picture steps down (¾, then ⅜ of the preview size), and steps back up when it can again.
+
+### Fonts: no more freezes
+
+* The Fonts screen froze while a font downloaded: every 64 KB chunk rewrote the download state,
+  which recomposed the whole list, and every row re-resolved its preview face with a slow system
+  `Typeface.create` lookup. Progress is now reported in 256 KB steps, families are resolved once
+  and cached, and a downloaded family previews in its real face straight from its file.
 
 ### A fuller editor toolbar
 

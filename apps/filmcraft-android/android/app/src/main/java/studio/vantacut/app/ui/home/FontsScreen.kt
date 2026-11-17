@@ -39,8 +39,18 @@ import studio.vantacut.app.ui.Vc
 import studio.vantacut.app.ui.VcType
 import studio.vantacut.app.ui.editor.familyFor
 
-/** The font family a chip previews in, like the text tools do. */
-private fun previewFor(name: String): FontFamily = familyFor(name.substringBefore(" Bold"))
+/** The font family a row previews in: a downloaded family shows in its real face from its file. */
+private val fileFaces = java.util.concurrent.ConcurrentHashMap<String, FontFamily>()
+
+private fun previewFor(name: String, installed: Set<String>, ctx: android.content.Context): FontFamily {
+    val base = name.substringBefore(" Bold")
+    if (base in installed) {
+        return fileFaces.getOrPut(base) {
+            runCatching { FontFamily(android.graphics.Typeface.createFromFile(java.io.File(FontDownloads.fontsDir(ctx), "$base.ttf"))) }.getOrDefault(FontFamily.SansSerif)
+        }
+    }
+    return familyFor(base)
+}
 
 /** Settings ▸ Fonts: the font pack that came with the app, and every family that can be downloaded. */
 @Composable
@@ -48,7 +58,7 @@ fun FontsScreen(vm: AppViewModel) {
     val ctx = LocalContext.current
     var refresh by remember { mutableIntStateOf(0) }
     val downloading = FontDownloads.state
-    val installed = remember(refresh, downloading == null) { FontDownloads.installed(ctx) }
+    val installed = remember(refresh, downloading == null) { FontDownloads.installed(ctx).toSet() }
     Page("Fonts", { vm.back() }, "screen_fonts") {
         Text(
             "Cairo, Amiri and the other faces below come with the app. Every family here is free (SIL Open Font License) and works offline once downloaded.",
@@ -61,13 +71,14 @@ fun FontsScreen(vm: AppViewModel) {
             items(FontCatalog.FONTS.size) { i ->
                 val f = FontCatalog.FONTS[i]
                 val have = f.family.removeSuffix(" Bold") in installed || f.family in installed
+                val face = previewFor(f.family, installed, ctx)
                 val busy = downloading != null && downloading.error == null
                 Row(
                     Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 12.dp).testTag("font_row_${f.family.replace(' ', '_')}"),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(Modifier.weight(1f)) {
-                        Text(f.family, fontFamily = previewFor(f.family), fontSize = 20.sp, color = Vc.Title, maxLines = 1)
+                        Text(f.family, fontFamily = face, fontSize = 20.sp, color = Vc.Title, maxLines = 1)
                         Text(if (f.arabic) "Arabic \u00b7 SIL OFL" else "SIL OFL", style = VcType.BodySmall, color = Vc.Detail)
                     }
                     when {

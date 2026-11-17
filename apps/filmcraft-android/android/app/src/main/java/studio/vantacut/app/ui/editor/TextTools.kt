@@ -251,13 +251,18 @@ private fun PresetsTab(ed: EditorController, c: ClipInfo, st: TextStyle, apply: 
 }
 
 /** A Compose family for an engine font name: the app's Inter, else the phone's matching face. */
-fun familyFor(name: String): FontFamily = when {
-    name.equals("Inter", ignoreCase = true) -> Inter
-    name.contains("Mono", ignoreCase = true) -> FontFamily.Monospace
-    name.contains("Serif", ignoreCase = true) && !name.contains("Sans", ignoreCase = true) -> FontFamily.Serif
-    name.contains("Cursive", ignoreCase = true) || name.contains("Script", ignoreCase = true) -> FontFamily.Cursive
-    else -> runCatching { FontFamily(android.graphics.Typeface.create(name, android.graphics.Typeface.NORMAL)) }.getOrDefault(FontFamily.SansSerif)
+fun familyFor(name: String): FontFamily = familyCache.getOrPut(name) {
+    when {
+        name.equals("Inter", ignoreCase = true) -> Inter
+        name.contains("Mono", ignoreCase = true) -> FontFamily.Monospace
+        name.contains("Serif", ignoreCase = true) && !name.contains("Sans", ignoreCase = true) -> FontFamily.Serif
+        name.contains("Cursive", ignoreCase = true) || name.contains("Script", ignoreCase = true) -> FontFamily.Cursive
+        // Typeface.create is a slow system lookup: once per family, never per recomposition
+        else -> runCatching { FontFamily(android.graphics.Typeface.create(name, android.graphics.Typeface.NORMAL)) }.getOrDefault(FontFamily.SansSerif)
+    }
 }
+
+private val familyCache = java.util.concurrent.ConcurrentHashMap<String, FontFamily>()
 
 fun weightFor(style: String): FontWeight = when {
     style.contains("Black", true) -> FontWeight.Black

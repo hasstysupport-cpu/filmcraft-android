@@ -165,14 +165,20 @@ object FontDownloads {
             conn.inputStream.use { input ->
                 FileOutputStream(part, done > 0 && code == HttpURLConnection.HTTP_PARTIAL).use { out ->
                     val buf = ByteArray(1 shl 16)
+                    var reported = done
                     while (true) {
                         ensureActive()
                         val n = input.read(buf)
                         if (n < 0) break
                         out.write(buf, 0, n)
                         done += n
-                        state = state?.copy(done = done)
+                        // a state write recomposes the screen: report in 256 KB steps, not per chunk
+                        if (done - reported >= (1 shl 18)) {
+                            reported = done
+                            state = state?.copy(done = done)
+                        }
                     }
+                    state = state?.copy(done = done)
                 }
             }
         } finally {

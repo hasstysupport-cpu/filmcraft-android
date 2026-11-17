@@ -50,6 +50,11 @@ preserved; the new features are covered by the Rust tests above.
 
 ## Known open defects
 
+* Two defects reported from on-device testing were fixed by the stale-frame skip, the catch-up
+  decode margin, the adaptive draft size and the Fonts-screen caching described in the changelog
+  (playback stutter in the editor, and the Fonts screen freezing during a download). Both fixes
+  are covered by the Rust suite; neither has been re-verified on hardware here — see *Device
+  testing* above.
 * None known at the engine/test level. On-device issues (performance on mid-range hardware,
   storage-permission flows, background/foreground transitions) remain unverified — see
   *Device testing* above.

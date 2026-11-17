@@ -155,6 +155,8 @@ class EditorController(
     private var drawing: CancelToken? = null
     /** The last frame index a picture was asked for (a display can beat the timeline's rate). */
     private var lastFrameIndex = Long.MIN_VALUE
+    /** How long a playback frame took to draw, smoothed (ms); drives the draft size. */
+    private var playbackMs = 0.0
 
     init {
         scope.launch { renderFrames() }
@@ -374,6 +376,7 @@ class EditorController(
         if (end - start < frameTicks) return
         playhead = start
         playing = true
+        playbackMs = 0.0
         player.start(r, start, end)
         // the UI thread's dispatcher brings the display's frame clock (the view model's scope has none)
         playJob = scope.launch(androidx.compose.ui.platform.AndroidUiDispatcher.Main) {
@@ -427,11 +430,35 @@ class EditorController(
         frameRequests.value = FrameRequest(t, draft, ++requestSeq, token)
     }
 
+    /**
+     * The side to draw a playing draft at: smaller when drawing can't keep the frame rate, back
+     * up when it can. Fluid at a slightly softer picture beats stuttering at a sharp one.
+     */
+    private fun draftSide(): Int {
+        val fps = (if (rateDen > 0) rateNum.toDouble() / rateDen.toDouble() else 30.0).coerceIn(1.0, 120.0)
+        val budget = 1000.0 / fps
+        val eighths = when {
+            playbackMs > budget * 2.0 -> 3
+            playbackMs > budget -> 4
+            playbackMs < budget / 2.0 -> 5
+            else -> 5
+        }
+        return (previewSide * eighths / 8).coerceAtLeast(240).coerceAtMost(previewSide)
+    }
+
     private suspend fun renderFrames() {
         frameRequests.filterNotNull().collect { req ->
             val r = renderer ?: return@collect
-            val side = if (req.draft && playing) (previewSide * 5 / 8).coerceAtLeast(160) else previewSide
+            // a newer wish is already queued: this frame is stale, drop it before any work
+            // (the one preview worker must never spend its time on pictures nobody shows)
+            if (frameRequests.value?.seq != req.seq) return@collect
+            val side = if (req.draft && playing) draftSide() else previewSide
+            val startedAt = System.nanoTime()
             val frame = withContext(engine.preview) { runCatching { r.frame(req.time, side.toUInt(), req.draft, req.cancel) }.getOrNull() } ?: return@collect
+            if (req.draft && playing) {
+                val took = (System.nanoTime() - startedAt) / 1_000_000.0
+                playbackMs = if (playbackMs <= 0.0) took else playbackMs * 0.7 + took * 0.3
+            }
             // a frame the playhead has already left is dropped, never shown (no backward steps)
             val isNewest = frameRequests.value?.seq == req.seq
             if (!isNewest && !playing) return@collect

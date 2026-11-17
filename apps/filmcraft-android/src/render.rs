@@ -152,7 +152,12 @@ impl Renderer {
         let provider = self.provider();
         let img = guarded(&cancel, || {
             filmcraft_media::cancel::with_draft(draft, || {
-                filmcraft_render::render_sequence(&self.project, self.seq, t, RenderOptions { scale, captions: true, ..Default::default() }, &provider)
+                // while playing (a draft), frames the playhead has already passed are late: a
+                // decoder catching up forward skips them instead of feeding stale pictures
+                let margin = if draft { Some(Tick(self.rate.frame_duration().0.saturating_mul(3))) } else { None };
+                filmcraft_media::cancel::with_catch_up(margin, || {
+                    filmcraft_render::render_sequence(&self.project, self.seq, t, RenderOptions { scale, captions: true, ..Default::default() }, &provider)
+                })
             })
         });
         if cancel.as_ref().is_some_and(|c| c.is_cancelled()) {
